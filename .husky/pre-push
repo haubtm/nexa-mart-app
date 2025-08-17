@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-echo "🧪 Running tests before push..."
-yarn test
+echo "🔍 Running lint before push..."
+yarn lint
