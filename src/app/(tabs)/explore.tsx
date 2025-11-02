@@ -21,7 +21,7 @@ export default function TabTwoScreen() {
         />
       }
     >
-      <Text className="text-xl font-bold text-red-600">Hello NativeWind ✨</Text>
+      <Text className="text-xl font-bold text-yellow-600">Hello NativeWind ✨</Text>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Explore</ThemedText>
       </ThemedView>
