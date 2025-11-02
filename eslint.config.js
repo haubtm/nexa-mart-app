@@ -1,4 +1,6 @@
 // https://docs.expo.dev/guides/using-eslint/
+import prettierPlugin from 'eslint-plugin-prettier';
+
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 
@@ -9,6 +11,7 @@ module.exports = defineConfig([
   },
   {
     files: ['**/*.{ts,tsx}'],
+    plugins: { prettier: prettierPlugin },
     languageOptions: {
       parserOptions: {
         project: './tsconfig.json',
@@ -22,5 +25,8 @@ module.exports = defineConfig([
         },
       },
     },
+    rules: {
+      'prettier/prettier': 'error'
+    }
   },
 ]);
