@@ -1,6 +1,7 @@
 import { apiService } from '@/api';
 import type { IResponse } from '@/dtos';
-import { clearStorage } from '@/lib';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 interface IProfileAccount {
@@ -54,7 +55,7 @@ export const userSlice = createSlice({
         state.profile = user;
       } else {
         state.profile = undefined;
-        clearStorage();
+        AsyncStorage.removeItem('token');
         // window.location.href = ROUTE_PATH.AUTH.LOGIN.PATH();
       }
       state.isLoading = false;
