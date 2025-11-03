@@ -46,6 +46,18 @@ export default function RootLayout() {
                 presentation: 'transparentModal',
               }}
             />
+            <Stack.Screen
+              name="product/[productUnitId]"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="chat"
+              options={{
+                headerShown: false,
+              }}
+            />
           </Stack>
           <StatusBar style="auto" />
         </ThemeProvider>

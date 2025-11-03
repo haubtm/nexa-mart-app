@@ -71,6 +71,7 @@ export interface IProductDetailResponseData {
   productId: number;
   productName: string;
   productCode: string;
+  description: string;
   unitId: number;
   unitName: string;
   quantityOnHand: number;

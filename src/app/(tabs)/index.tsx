@@ -1,5 +1,6 @@
 import type { IProductListRequest } from '@/dtos';
 import { useCartList, useProductList, useProductUnitById } from '@/react-query';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -22,7 +23,6 @@ export type UnitCardItem = {
 
 function ProductUnitCard({ item }: { item: UnitCardItem }) {
   const router = useRouter();
-
   const { data: unitData, isPending: unitLoading } = useProductUnitById({
     productUnitId: item.id,
   });
@@ -30,8 +30,14 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
     ?.productImage?.imageUrl;
   const salePrice = unitData?.data?.currentPrice;
 
-  const openDetail = () => {
-    // điều hướng sang màn detail với params
+  const goDetailPage = () => {
+    router.push({
+      pathname: '/product/[productUnitId]',
+      params: { productUnitId: String(item.id) },
+    });
+  };
+
+  const openAddSheet = () => {
     router.push({
       pathname: '/detail',
       params: {
@@ -44,8 +50,12 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
   };
 
   return (
-    <View className="bg-white rounded-2xl p-3 m-2 w-[48%] shadow-sm">
-      <View className="w-full aspect-square items-center justify-center rounded-xl overflow-hidden bg-zinc-50">
+    <View className="bg-white rounded-2xl p-3 m-2 w-[48%] shadow-sm relative">
+      {/* Nhấn ảnh để vào trang chi tiết */}
+      <Pressable
+        onPress={goDetailPage}
+        className="w-full aspect-square items-center justify-center rounded-xl overflow-hidden bg-zinc-50"
+      >
         {unitLoading ? (
           <ActivityIndicator />
         ) : primaryImage ? (
@@ -57,38 +67,42 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
         ) : (
           <Text className="text-zinc-400">No image</Text>
         )}
-      </View>
-      <View className="mt-2">
+      </Pressable>
+
+      {/* Nhấn tên cũng vào chi tiết */}
+      <Pressable onPress={goDetailPage} className="mt-2">
         <Text
           numberOfLines={2}
           className="text-[15px] font-medium text-zinc-900"
         >
           {unitData?.data?.productName || item.name}
         </Text>
-        <Text className="text-[13px] text-zinc-500 mt-0.5">
-          Đơn vị: {unitData?.data?.unitName || item.unitName}
-        </Text>
-        <View className="mt-1 h-5 justify-center">
-          {unitLoading ? (
-            <ActivityIndicator size="small" />
-          ) : salePrice ? (
-            <Text className="text-[15px] font-semibold text-red-600">
-              {salePrice.toLocaleString('vi-VN')}₫
-            </Text>
-          ) : (
-            <Text className="text-[13px] text-zinc-400 italic">
-              Chưa có giá
-            </Text>
-          )}
-        </View>
-        <Pressable
-          disabled={!salePrice}
-          onPress={openDetail}
-          className={`mt-2 py-2 rounded-full items-center ${!salePrice ? 'bg-zinc-300' : 'bg-red-600'}`}
-        >
-          <Text className="text-white font-semibold">Thêm vào giỏ</Text>
-        </Pressable>
+      </Pressable>
+
+      <Text className="text-[13px] text-zinc-500 mt-0.5">
+        Đơn vị: {unitData?.data?.unitName || item.unitName}
+      </Text>
+
+      <View className="mt-1 h-5 justify-center">
+        {unitLoading ? (
+          <ActivityIndicator size="small" />
+        ) : salePrice ? (
+          <Text className="text-[15px] font-semibold text-red-600">
+            {salePrice.toLocaleString('vi-VN')}₫
+          </Text>
+        ) : (
+          <Text className="text-[13px] text-zinc-400 italic">Chưa có giá</Text>
+        )}
       </View>
+
+      {/* Nút vẫn mở sheet modal '/detail' như ngoài list */}
+      <Pressable
+        disabled={!salePrice}
+        onPress={openAddSheet}
+        className={`mt-2 py-2 rounded-full items-center ${!salePrice ? 'bg-zinc-300' : 'bg-red-600'}`}
+      >
+        <Text className="text-white font-semibold">Thêm vào giỏ</Text>
+      </Pressable>
     </View>
   );
 }
@@ -152,9 +166,14 @@ export default function HomeScreen() {
         </Pressable>
         <Link href="/cart" asChild>
           <Pressable className="ml-3 relative">
-            <Text className="text-white text-2xl">🛒</Text>
+            <Feather
+              className="ml-3 relative"
+              name="shopping-cart"
+              size={22}
+              color="#fff"
+            />
             {totalItems > 0 && (
-              <View className="absolute -top-1 -right-2 bg-white rounded-full px-1.5">
+              <View className="absolute -top-2 -right-3 bg-white rounded-full px-1.5">
                 <Text className="text-red-600 text-[12px] font-bold">
                   {totalItems}
                 </Text>
@@ -192,6 +211,22 @@ export default function HomeScreen() {
           }
         />
       )}
+      <View
+        pointerEvents="box-none"
+        style={{ position: 'absolute', right: 16, bottom: 20 }}
+      >
+        <Pressable
+          onPress={() => router.push('/chat')}
+          className="w-20 h-20 rounded-full bg-red-600 items-center justify-center shadow"
+          android_ripple={{ color: '#fff' }}
+        >
+          <MaterialCommunityIcons
+            name="chat-processing-outline"
+            size={40}
+            color="#fff"
+          />
+        </Pressable>
+      </View>
     </View>
   );
 }

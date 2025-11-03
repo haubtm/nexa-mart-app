@@ -19,3 +19,8 @@ export enum EDiscountType {
   FIXED = 'fixed',
   PERCENTAGE = 'percentage',
 }
+
+export enum ESenderType {
+  AI = 'AI',
+  USER = 'USER',
+}

@@ -6,6 +6,7 @@ import {
   useCartList,
   useCartUpdate,
 } from '@/react-query';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
@@ -63,6 +64,17 @@ export default function CartScreen() {
     }
   };
 
+  const decOrRemove = async (id: number, cur: number) => {
+    // nếu đang là 1 thì xóa hẳn dòng
+    if (cur <= 1) {
+      await deleteLine({ productUnitId: id });
+      await queryClient.invalidateQueries({ queryKey: cartKeys.all });
+      return;
+    }
+    // còn >1 thì giảm như bình thường
+    await dec(id, cur);
+  };
+
   const remove = async (id: number) => {
     await deleteLine({ productUnitId: id });
     await queryClient.invalidateQueries({ queryKey: cartKeys.all });
@@ -98,7 +110,7 @@ export default function CartScreen() {
 
       <View className="flex-1 items-center justify-center px-10">
         <View className="w-20 h-20 rounded-full bg-zinc-100 items-center justify-center mb-4">
-          <Text className="text-3xl text-zinc-400">＋</Text>
+          <Feather name="plus" size={20} color="#111" />
         </View>
         <Text className="text-[18px] text-zinc-700 mb-4">Chưa có sản phẩm</Text>
 
@@ -201,10 +213,20 @@ export default function CartScreen() {
                     {canMinus && (
                       <Pressable
                         disabled={updating || rowBusy}
-                        onPress={() => dec(item.productUnitId, item.quantity)}
+                        onPress={() =>
+                          decOrRemove(item.productUnitId, item.quantity)
+                        }
                         className="w-8 h-8 rounded-full bg-zinc-100 items-center justify-center"
                       >
-                        <Text>−</Text>
+                        {item.quantity === 1 ? (
+                          <MaterialCommunityIcons
+                            name="trash-can-outline"
+                            size={20}
+                            color="#111"
+                          />
+                        ) : (
+                          <Feather name="minus" size={20} color="#111" />
+                        )}
                       </Pressable>
                     )}
 
@@ -229,7 +251,7 @@ export default function CartScreen() {
                         canPlus ? 'bg-zinc-100' : 'bg-zinc-200'
                       }`}
                     >
-                      <Text>＋</Text>
+                      <Feather name="plus" size={20} color="#111" />
                     </Pressable>
 
                     <Pressable
@@ -237,7 +259,11 @@ export default function CartScreen() {
                       onPress={() => remove(item.productUnitId)}
                       className="w-8 h-8 rounded-full bg-zinc-100 items-center justify-center ml-1"
                     >
-                      <Text>🗑️</Text>
+                      <MaterialCommunityIcons
+                        name="trash-can-outline"
+                        size={20}
+                        color="#111"
+                      />
                     </Pressable>
                   </View>
                 ) : (
@@ -258,6 +284,13 @@ export default function CartScreen() {
             label="Tạm tính"
             value={`${totals.sub.toLocaleString('vi-VN')}đ`}
           />
+          {!!totals.lineDiscount && (
+            <Row
+              label="Giảm giá"
+              value={`−${totals.lineDiscount.toLocaleString('vi-VN')}đ`}
+              highlight
+            />
+          )}
           {!!totals.orderDiscount && (
             <Row
               label="Khuyến mãi hoá đơn"

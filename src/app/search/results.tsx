@@ -5,6 +5,7 @@ import {
   useProductList,
   useProductUnitById,
 } from '@/react-query';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -155,16 +156,21 @@ export default function SearchResultsScreen() {
     <View className="flex-1 bg-zinc-100">
       <View className="pt-12 pb-3 px-4 bg-red-600 flex-row items-center justify-between">
         <Pressable
-          className="bg-white rounded-full px-4 py-2"
+          className="bg-transparent rounded-full px-4 py-2 flex-row items-center"
           onPress={() => router.back()}
         >
-          <Text>← {initialTerm}</Text>
+          <MaterialIcons name="arrow-back" size={22} color="#fff" />
         </Pressable>
         <Link href="/cart" asChild>
           <Pressable className="ml-3 relative">
-            <Text className="text-white text-2xl">🛒</Text>
+            <Feather
+              className="ml-3 relative"
+              name="shopping-cart"
+              size={22}
+              color="#fff"
+            />
             {totalItems > 0 && (
-              <View className="absolute -top-1 -right-2 bg-white rounded-full px-1.5">
+              <View className="absolute -top-2 -right-3 bg-white rounded-full px-1.5">
                 <Text className="text-red-600 text-[12px] font-bold">
                   {totalItems}
                 </Text>
