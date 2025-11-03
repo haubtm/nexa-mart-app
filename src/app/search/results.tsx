@@ -1,7 +1,12 @@
 import type { IProductListRequest } from '@/dtos';
-import { useCartList, useProductList, useProductUnitById } from '@/react-query';
+import {
+  productKeys,
+  useCartList,
+  useProductList,
+  useProductUnitById,
+} from '@/react-query';
 import { useQueryClient } from '@tanstack/react-query';
-import { Link, useRouter } from 'expo-router';
+import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,7 +17,7 @@ import {
   View,
 } from 'react-native';
 
-export type UnitCardItem = {
+type UnitCardItemR = {
   id: number;
   key: string;
   productId: number;
@@ -20,25 +25,27 @@ export type UnitCardItem = {
   unitName: string;
 };
 
-function ProductUnitCard({ item }: { item: UnitCardItem }) {
+function ResultCard({ item }: { item: UnitCardItemR }) {
   const router = useRouter();
-
   const { data: unitData, isPending: unitLoading } = useProductUnitById({
     productUnitId: item.id,
   });
-  const primaryImage = unitData?.data?.images?.find((img: any) => img.isPrimary)
+
+  const imgUrl = unitData?.data?.images?.find((i: any) => i.isPrimary)
     ?.productImage?.imageUrl;
   const salePrice = unitData?.data?.currentPrice;
+  const unitName = unitData?.data?.unitName ?? item.unitName;
+  const productName = unitData?.data?.productName ?? item.name;
+  const productId = unitData?.data?.productId ?? item.productId;
 
   const openDetail = () => {
-    // điều hướng sang màn detail với params
     router.push({
       pathname: '/detail',
       params: {
         productUnitId: String(item.id),
-        productId: String(unitData?.data?.productId ?? item.productId),
-        productName: unitData?.data?.productName ?? item.name,
-        unitName: unitData?.data?.unitName ?? item.unitName,
+        productId: String(productId),
+        productName,
+        unitName,
       },
     });
   };
@@ -48,9 +55,9 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
       <View className="w-full aspect-square items-center justify-center rounded-xl overflow-hidden bg-zinc-50">
         {unitLoading ? (
           <ActivityIndicator />
-        ) : primaryImage ? (
+        ) : imgUrl ? (
           <Image
-            source={{ uri: primaryImage }}
+            source={{ uri: imgUrl }}
             resizeMode="contain"
             className="w-full h-full"
           />
@@ -63,11 +70,12 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
           numberOfLines={2}
           className="text-[15px] font-medium text-zinc-900"
         >
-          {unitData?.data?.productName || item.name}
+          {productName}
         </Text>
         <Text className="text-[13px] text-zinc-500 mt-0.5">
-          Đơn vị: {unitData?.data?.unitName || item.unitName}
+          Đơn vị: {unitName}
         </Text>
+
         <View className="mt-1 h-5 justify-center">
           {unitLoading ? (
             <ActivityIndicator size="small" />
@@ -81,6 +89,7 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
             </Text>
           )}
         </View>
+
         <Pressable
           disabled={!salePrice}
           onPress={openDetail}
@@ -93,38 +102,41 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
   );
 }
 
-export default function HomeScreen() {
+export default function SearchResultsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
-  const [query, setQuery] = useState<IProductListRequest>({
+  const { query: qParam } = useLocalSearchParams<{ query?: string }>();
+  const initialTerm = decodeURIComponent(qParam ?? '');
+
+  const [req, setReq] = useState<IProductListRequest>({
     page: 0,
     size: 12,
-    searchTerm: '',
+    searchTerm: initialTerm,
   });
-  const { data, isPending, isFetching } = useProductList(query);
-  const { data: cartData } = useCartList();
-  const totalItems = cartData?.data?.totalItems ?? 0;
-  const unitItems: UnitCardItem[] = useMemo(() => {
+  const { data, isPending, isFetching } = useProductList(req);
+
+  const items: UnitCardItemR[] = useMemo(() => {
     const products = data?.data?.products ?? [];
-    const items: UnitCardItem[] = [];
+    const arr: UnitCardItemR[] = [];
     for (const p of products)
       for (const u of p.units ?? [])
-        items.push({
+        arr.push({
           id: u.id!,
           key: `${p.id}-${u.id}`,
           productId: p.id,
           name: p.name,
           unitName: u.unitName,
         });
-    return items;
+    return arr;
   }, [data]);
-
+  const { data: cartData } = useCartList();
+  const totalItems = cartData?.data?.totalItems ?? 0;
   const totalElements = data?.data?.pageInfo?.totalElements ?? 0;
-  const canGrow = (query.size ?? 0) < totalElements;
+  const canGrow = (req.size ?? 0) < totalElements;
   const handleEndReached = useCallback(() => {
     if (!canGrow || isFetching) return;
-    setQuery((prev) => ({
+    setReq((prev) => ({
       ...prev,
       size: Math.min((prev.size ?? 0) + 12, totalElements),
     }));
@@ -133,7 +145,7 @@ export default function HomeScreen() {
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
-      await queryClient.invalidateQueries();
+      await queryClient.invalidateQueries({ queryKey: productKeys.all });
     } finally {
       setRefreshing(false);
     }
@@ -141,14 +153,12 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-zinc-100">
-      <View className="pt-12 pb-3 px-4 bg-red-600 flex-row items-center">
+      <View className="pt-12 pb-3 px-4 bg-red-600 flex-row items-center justify-between">
         <Pressable
-          className="flex-1 bg-white rounded-full px-4 py-2"
-          onPress={() => router.push('/search')}
+          className="bg-white rounded-full px-4 py-2"
+          onPress={() => router.back()}
         >
-          <Text className="text-[16px] text-zinc-500">
-            Hi Hậu, bạn muốn tìm gì hôm nay
-          </Text>
+          <Text>← {initialTerm}</Text>
         </Pressable>
         <Link href="/cart" asChild>
           <Pressable className="ml-3 relative">
@@ -163,8 +173,7 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
       </View>
-
-      {isPending && unitItems.length === 0 ? (
+      {isPending && items.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator />
         </View>
@@ -175,10 +184,10 @@ export default function HomeScreen() {
             paddingTop: 8,
             paddingBottom: 24,
           }}
-          data={unitItems}
+          data={items}
           numColumns={2}
           keyExtractor={(it) => it.key}
-          renderItem={({ item }) => <ProductUnitCard item={item} />}
+          renderItem={({ item }) => <ResultCard item={item} />}
           onEndReachedThreshold={0.4}
           onEndReached={handleEndReached}
           refreshing={refreshing}

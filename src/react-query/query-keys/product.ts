@@ -11,6 +11,8 @@ export const productKeys = {
     [...productKeys.lists(), { filters }] as const,
   details: () => [...productKeys.all, 'detail'] as const,
   detail: (id: number) => [...productKeys.details(), id] as const,
+  byIds: () => [...productKeys.all, 'byIds'] as const,
+  byId: (id: number) => [...productKeys.byIds(), id] as const,
   byCategory: () => [...productKeys.all, 'byCategory'] as const,
   byCategoryId: (body: IProductByCategoryIdRequest) =>
     [...productKeys.byCategory(), { ...body }] as const,

@@ -5,6 +5,8 @@ import type {
   IProductByCategoryIdResponse,
   IProductByIdRequest,
   IProductByIdResponse,
+  IProductDetailRequest,
+  IProductDetailResponse,
   IProductListRequest,
   IProductListResponse,
 } from '@/dtos';
@@ -21,6 +23,20 @@ export const productApi = {
 
     return response;
   },
+
+  detail: async (body: IProductDetailRequest) => {
+    const response = await apiService.get<IProductDetailResponse>(
+      `${BASE_ENDPOINT}/units/${body.productUnitId}/details`,
+      {
+        params: {
+          ...body,
+        },
+      },
+    );
+
+    return response;
+  },
+
   byId: async (body: IProductByIdRequest) => {
     const response = await apiService.get<IProductByIdResponse>(
       `${BASE_ENDPOINT}/${body.id}`,

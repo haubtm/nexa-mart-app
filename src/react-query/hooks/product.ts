@@ -3,6 +3,7 @@ import type {
   IProductByBrandIdRequest,
   IProductByCategoryIdRequest,
   IProductByIdRequest,
+  IProductDetailRequest,
   IProductListRequest,
 } from '@/dtos';
 import { useQuery } from '@tanstack/react-query';
@@ -15,9 +16,16 @@ export const useProductList = (filters: IProductListRequest) => {
   });
 };
 
+export const useProductUnitById = (body: IProductDetailRequest) => {
+  return useQuery({
+    queryKey: productKeys.detail(body.productUnitId),
+    queryFn: async () => await productApi.detail(body),
+  });
+};
+
 export const useProductById = (body: IProductByIdRequest) => {
   return useQuery({
-    queryKey: productKeys.detail(body.id),
+    queryKey: productKeys.byId(body.id),
     queryFn: async () => await productApi.byId(body),
   });
 };

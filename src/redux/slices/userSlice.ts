@@ -1,14 +1,18 @@
 import { apiService } from '@/api';
 import type { IResponse } from '@/dtos';
+import { ECustomerType, EUserType } from '@/lib';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 interface IProfileAccount {
+  userType?: string;
+  customerId?: number;
   employeeId?: number;
   name?: string;
   email?: string;
-  role?: string;
+  userRole?: EUserType;
+  customerType?: ECustomerType;
 }
 
 export interface UserState {
@@ -27,6 +31,8 @@ const requestGetUserInfo = () => apiService.get(GET_PROFILE);
 
 export const getUserInfo = createAsyncThunk('user/info', async () => {
   const response: IResponse<IProfileAccount> = await requestGetUserInfo();
+  console.log(response);
+  console.log('hello');
   return response?.data;
 });
 

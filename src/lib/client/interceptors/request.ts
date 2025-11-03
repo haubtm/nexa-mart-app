@@ -5,7 +5,7 @@ export const requestInterceptor = async (
 ) => {
   // const token = await AsyncStorage.getItem('token');
   const token =
-    'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBzdXBlcm1hcmtldC5jb20iLCJpYXQiOjE3NjIwOTM0NTYsImV4cCI6MTc2MjE3OTg1Nn0.jrLkqMalz7NJIu3CZINzW6yF_4k7f2S_ZGtsoTwjv-tybov0-mAmh78tFFD9gNIntGGTeNfN72nSawp7Oo9B2g';
+    'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDVVNUT01FUjpoYXVidG02OTlAZ21haWwuY29tIiwiaWF0IjoxNzYyMTY4MzQzLCJleHAiOjE3NjIyNTQ3NDN9.ncAA_YRpAdqwMOJHUx-W5jFTtJy_WrEI5UZ-fc8ykfjFOBFMXwdxPhJPXcdm__4mrXlDcLAHXDcIuOCXtQqMfw';
   config.headers.Authorization = `Bearer ${token}`;
   config.headers.Authorization = `Bearer ${token}`;
 

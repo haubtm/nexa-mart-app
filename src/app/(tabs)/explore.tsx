@@ -9,9 +9,13 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { queryClient } from '@/providers/ReactQuery';
 import { productKeys, useProductList } from '@/react-query';
+import { useAppSelector } from '@/redux/hooks';
 
 export default function TabTwoScreen() {
   const { data, isLoading, error } = useProductList({ page: 0, size: 10 });
+  const user = useAppSelector((state) => state.user).profile;
+
+  console.log(user);
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}

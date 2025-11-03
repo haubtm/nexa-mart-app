@@ -45,6 +45,42 @@ export interface IUnitResponseData {
   updatedAt: string;
 }
 
+export interface IProductImage {
+  id: number;
+  displayOrder: number;
+  isPrimary: boolean;
+  isActive: boolean;
+  createdAt: string;
+  productUnitId: number;
+  productImage: {
+    imageId: number;
+    imageUrl: string;
+    imageAlt: string | null;
+    sortOrder: number;
+    createdAt: string;
+    productId: number;
+    variantId: number | null;
+  };
+}
+export interface IProductDetailResponseData {
+  productUnitId: number;
+  barcode: string;
+  conversionValue: number;
+  isBaseUnit: boolean;
+  isActive: boolean;
+  productId: number;
+  productName: string;
+  productCode: string;
+  unitId: number;
+  unitName: string;
+  quantityOnHand: number;
+  currentPrice: number;
+  priceId: number | null;
+  priceCode: string | null;
+  priceName: string | null;
+  images: IProductImage[];
+}
+
 export interface IPageable {
   pageInfo: {
     currentPage: number;
