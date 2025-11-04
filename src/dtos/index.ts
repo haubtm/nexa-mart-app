@@ -3,6 +3,7 @@ export * from './cart';
 export * from './common';
 export * from './conversation';
 export * from './customer';
+export * from './order';
 export * from './price';
 export * from './product';
 export * from './product-image';

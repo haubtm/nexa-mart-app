@@ -28,8 +28,8 @@ export default function RootLayout() {
 
   // console.log(user);
   return (
-    <ReactQueryProvider>
-      <Provider store={store}>
+    <Provider store={store}>
+      <ReactQueryProvider>
         <ThemeProvider
           value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
         >
@@ -53,6 +53,12 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="orders/[id]"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="chat"
               options={{
                 headerShown: false,
@@ -61,7 +67,7 @@ export default function RootLayout() {
           </Stack>
           <StatusBar style="auto" />
         </ThemeProvider>
-      </Provider>
-    </ReactQueryProvider>
+      </ReactQueryProvider>
+    </Provider>
   );
 }

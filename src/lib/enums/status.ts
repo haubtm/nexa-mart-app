@@ -1,0 +1,15 @@
+export enum EPaymentStatus {
+  FAILED = 'FAILED',
+  PAID = 'PAID',
+  REFUNDED = 'REFUNDED',
+  UNPAID = 'UNPAID',
+}
+
+export enum EOrderStatus {
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+  PENDING = 'PENDING',
+  PREPARING = 'PREPARING',
+  SHIPPING = 'SHIPPING',
+  DELIVERED = 'DELIVERED',
+}

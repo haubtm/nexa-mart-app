@@ -24,3 +24,13 @@ export enum ESenderType {
   AI = 'AI',
   USER = 'USER',
 }
+
+export enum EDeliveryType {
+  HOME_DELIVERY = 'HOME_DELIVERY',
+  PICKUP_AT_STORE = 'PICKUP_AT_STORE',
+}
+
+export enum EPaymentMethod {
+  CASH = 'CASH',
+  ONLINE = 'ONLINE',
+}
