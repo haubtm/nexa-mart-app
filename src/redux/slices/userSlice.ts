@@ -57,7 +57,7 @@ export const userSlice = createSlice({
     });
     builder.addCase(getUserInfo.fulfilled, (state, action) => {
       const user: IProfileAccount = action.payload;
-      if (user?.employeeId) {
+      if (user?.customerId) {
         state.profile = user;
       } else {
         state.profile = undefined;

@@ -1,11 +1,9 @@
+import { ProductCard } from '@/components/ProductCard';
+import { PromotionCard } from '@/components/PromotionCard';
+import { SuggestionCard } from '@/components/SuggestionCard';
+import type { IChatMessage } from '@/dtos';
 import { ESenderType } from '@/lib';
-import { queryClient } from '@/providers/ReactQuery';
-import {
-  conversationKeys,
-  useConversationById,
-  useConversationChat,
-} from '@/react-query';
-import { useAppSelector } from '@/redux/hooks';
+import { useConversationById, useConversationChat } from '@/react-query';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
@@ -23,63 +21,146 @@ import {
 export default function ChatRoomScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const user = useAppSelector((state) => state.user).profile;
 
   const customerId = 2;
 
-  const { data, isPending } = useConversationById({
+  const [text, setText] = useState('');
+  const [optimisticMessages, setOptimisticMessages] = useState<IChatMessage[]>(
+    [],
+  );
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const listRef = useRef<FlatList>(null);
+
+  const { data, isPending, refetch } = useConversationById({
     conversationId: String(id),
     customerId,
   });
-  const messages = data?.data ?? [];
+
+  // Type cast API returns array directly in data
+  const allMessages = Array.isArray(data?.data) ? data.data : [];
+  const messages: IChatMessage[] = [...allMessages, ...optimisticMessages];
 
   const { mutateAsync: chatWithConversation, isPending: sending } =
     useConversationChat();
-
-  const [text, setText] = useState('');
-  const listRef = useRef<FlatList>(null);
 
   const send = async () => {
     const value = text.trim();
     if (!value) return;
     setText('');
 
-    await chatWithConversation(
-      {
+    // Thêm user message vào optimistic
+    const userMessage: IChatMessage = {
+      id: Date.now(),
+      senderType: ESenderType.USER,
+      content: value,
+      data: null,
+      timestamp: new Date().toISOString(),
+    };
+    setOptimisticMessages((prev) => [...prev, userMessage]);
+
+    // Thêm loading message
+    const loadingMessage: IChatMessage = {
+      id: Date.now() + 1,
+      senderType: ESenderType.AI,
+      content: 'Đang xử lý...',
+      data: null,
+      timestamp: new Date().toISOString(),
+    };
+    setOptimisticMessages((prev) => [...prev, loadingMessage]);
+
+    // Kéo xuống cuối
+    setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+
+    try {
+      const response = await chatWithConversation({
         customerId,
         conversationId: String(id),
         message: value,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: conversationKeys.all });
-        },
-      },
-    );
+      });
 
-    // kéo xuống cuối sau khi gửi
-    setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+      // Lấy suggestions từ response
+      const newSuggestions = response?.data?.structuredData?.suggestions ?? [];
+      setSuggestions(newSuggestions);
+
+      // Xóa optimistic messages
+      setOptimisticMessages([]);
+      // Reload danh sách tin nhắn từ server
+      refetch();
+    } catch (error) {
+      // Nếu lỗi, xóa optimistic messages
+      setOptimisticMessages([]);
+      setSuggestions([]);
+    }
+
+    // Kéo xuống cuối sau khi gửi xong
+    setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
-  const renderItem = ({ item }) => {
+  const handleSuggestionPress = (suggestion: string) => {
+    setText(suggestion);
+    // Auto-scroll khi focus vào input
+    setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
+  };
+
+  const renderItem = ({ item }: { item: IChatMessage }) => {
     const mine = item.senderType === ESenderType.USER;
+    const isLoading = item.content === 'Đang xử lý...';
+
     return (
-      <View className={`px-4 py-1 ${mine ? 'items-end' : 'items-start'}`}>
+      <View className={`px-4 py-2 ${mine ? 'items-end' : 'items-start'}`}>
+        {/* Tin nhắn */}
         <View
-          className={`max-w-[80%] rounded-2xl px-3 py-2 ${
+          className={`max-w-[85%] rounded-2xl px-3 py-2 ${
             mine ? 'bg-red-600' : 'bg-zinc-100'
           }`}
         >
-          <Text className={`${mine ? 'text-white' : 'text-zinc-900'}`}>
-            {item.content}
-          </Text>
+          {isLoading ? (
+            <View className="flex-row items-center gap-1">
+              <ActivityIndicator
+                size="small"
+                color={mine ? '#fff' : '#111827'}
+              />
+              <Text className={`${mine ? 'text-white' : 'text-zinc-900'}`}>
+                {item.content}
+              </Text>
+            </View>
+          ) : (
+            <Text className={`${mine ? 'text-white' : 'text-zinc-900'}`}>
+              {item.content}
+            </Text>
+          )}
         </View>
+
+        {/* Thời gian */}
         <Text className="text-[11px] text-zinc-400 mt-1">
           {new Date(item.timestamp).toLocaleTimeString('vi-VN', {
             hour: '2-digit',
             minute: '2-digit',
           })}
         </Text>
+
+        {/* Hiển thị sản phẩm nếu có */}
+        {!mine && item.data?.products && item.data.products.length > 0 && (
+          <View className="mt-2 w-full">
+            <FlatList
+              scrollEnabled={false}
+              data={item.data.products}
+              keyExtractor={(p) => String(p.product_id)}
+              renderItem={({ item: product }) => <ProductCard item={product} />}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
+            />
+          </View>
+        )}
+
+        {/* Hiển thị khuyến mãi nếu có */}
+        {!mine && item.data?.promotions && item.data.promotions.length > 0 && (
+          <View className="mt-2 w-full">
+            {item.data.promotions.map((promo, idx) => (
+              <PromotionCard key={idx} item={promo} />
+            ))}
+          </View>
+        )}
       </View>
     );
   };
@@ -107,10 +188,10 @@ export default function ChatRoomScreen() {
       ) : (
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={80}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
-          <FlatList
+          <FlatList<IChatMessage>
             ref={listRef}
             data={messages}
             renderItem={renderItem}
@@ -122,23 +203,57 @@ export default function ChatRoomScreen() {
             onLayout={() => listRef.current?.scrollToEnd({ animated: false })}
           />
 
+          {/* Suggestions */}
+          {suggestions.length > 0 && (
+            <View className="border-t border-zinc-200 px-3 py-2">
+              <Text className="text-[12px] text-zinc-500 mb-1">
+                Gợi ý tiếp theo:
+              </Text>
+              <View className="max-h-32">
+                {suggestions.map((suggestion, idx) => (
+                  <SuggestionCard
+                    key={`suggestion-${idx}`}
+                    text={suggestion}
+                    onPress={handleSuggestionPress}
+                  />
+                ))}
+              </View>
+            </View>
+          )}
+
           {/* Input */}
           <View className="border-t border-zinc-200 px-3 py-2 flex-row items-center gap-6">
-            <View className="flex-1 bg-zinc-100 rounded-full px-3">
+            <View className="flex-1 bg-zinc-100 rounded-full px-3 max-h-20">
               <TextInput
                 placeholder="Nhập tin nhắn..."
                 value={text}
                 onChangeText={setText}
+                onFocus={() => {
+                  // Auto-scroll xuống cuối khi focus vào input
+                  setTimeout(
+                    () => listRef.current?.scrollToEnd({ animated: true }),
+                    150,
+                  );
+                }}
                 className="h-11"
                 multiline
+                maxLength={500}
+                scrollEnabled={true}
+                placeholderTextColor="#a1a1a1"
               />
             </View>
             <Pressable
-              disabled={sending || !text.trim()}
+              disabled={
+                sending || !text.trim() || optimisticMessages.length > 0
+              }
               onPress={send}
-              className={`w-11 h-11 rounded-full items-center justify-center ${text.trim() ? 'bg-red-600' : 'bg-zinc-300'}`}
+              className={`w-11 h-11 rounded-full items-center justify-center ${text.trim() && optimisticMessages.length === 0 ? 'bg-red-600' : 'bg-zinc-300'}`}
             >
-              <Feather name="send" size={18} color="#fff" />
+              {sending || optimisticMessages.length > 0 ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Feather name="send" size={18} color="#fff" />
+              )}
             </Pressable>
           </View>
         </KeyboardAvoidingView>

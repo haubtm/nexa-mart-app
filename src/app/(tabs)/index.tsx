@@ -1,5 +1,6 @@
 import type { IProductListRequest } from '@/dtos';
 import { useCartList, useProductList, useProductUnitById } from '@/react-query';
+import { useAppSelector } from '@/redux/hooks';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
@@ -22,6 +23,8 @@ export type UnitCardItem = {
 };
 
 function ProductUnitCard({ item }: { item: UnitCardItem }) {
+  const user = useAppSelector((state) => state.user.profile);
+
   const router = useRouter();
   const { data: unitData, isPending: unitLoading } = useProductUnitById({
     productUnitId: item.id,
@@ -98,7 +101,10 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
       {/* Nút vẫn mở sheet modal '/detail' như ngoài list */}
       <Pressable
         disabled={!salePrice}
-        onPress={openAddSheet}
+        onPress={() => {
+          openAddSheet();
+          console.log(user);
+        }}
         className={`mt-2 py-2 rounded-full items-center ${!salePrice ? 'bg-zinc-300' : 'bg-red-600'}`}
       >
         <Text className="text-white font-semibold">Thêm vào giỏ</Text>
