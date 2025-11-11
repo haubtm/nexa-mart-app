@@ -34,3 +34,10 @@ export enum EPaymentMethod {
   CASH = 'CASH',
   ONLINE = 'ONLINE',
 }
+
+export enum EPaymentProvider {
+  MOMO = 'MOMO',
+  VNPAY = 'VNPAY',
+  PAYOS = 'PAYOS',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+}

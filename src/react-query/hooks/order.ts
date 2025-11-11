@@ -1,6 +1,6 @@
 import { orderApi } from '@/api';
-import type { IOrderByIdRequest, IOrderListRequest } from '@/dtos';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import type { IOrderByIdRequest, IOrderByIdResponse, IOrderListRequest } from '@/dtos';
+import { useMutation, useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { orderKeys } from '../query-keys';
 
 export const useOrderList = (body: IOrderListRequest) => {
@@ -10,10 +10,15 @@ export const useOrderList = (body: IOrderListRequest) => {
   });
 };
 
-export const useOrderById = (body: IOrderByIdRequest) => {
+export const useOrderById = (
+  body: IOrderByIdRequest,
+  options?: Omit<UseQueryOptions<IOrderByIdResponse>, 'queryKey' | 'queryFn'>,
+) => {
   return useQuery({
     queryKey: orderKeys.byId(body),
     queryFn: async () => await orderApi.byId(body),
+    enabled: !!body.orderId,
+    ...options,
   });
 };
 

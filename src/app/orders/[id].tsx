@@ -1,8 +1,9 @@
 import { EPaymentMethod, orderStatusMap, paymentStatusMap } from '@/lib';
 import { useOrderById } from '@/react-query';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, ScrollView, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const money = (n?: number | null) => (n ?? 0).toLocaleString('vi-VN') + 'đ';
 
@@ -15,6 +16,7 @@ export function Badge({ text }: { text: string }) {
 }
 
 export default function OrderDetailScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const orderId = Number(id);
 
@@ -46,9 +48,19 @@ export default function OrderDetailScreen() {
     >
       {/* Header đỏ theo theme Home */}
       <View className="px-4 pt-12 pb-4 bg-red-600">
-        <Text className="text-white text-lg font-semibold">
-          Đơn hàng #{order.orderCode || order.orderId}
-        </Text>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text className="text-white text-lg font-semibold">
+              Đơn hàng #{order.orderCode || order.orderId}
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => router.push('/')}
+            className="ml-2 p-2"
+          >
+            <MaterialIcons name="home" size={24} color="white" />
+          </Pressable>
+        </View>
         <View className="mt-2 flex-row gap-2">
           <Badge text={orderStatusMap[order.orderStatus]} />
         </View>
@@ -86,8 +98,24 @@ export default function OrderDetailScreen() {
             <View className="h-px bg-zinc-100 my-2" />
           )}
           renderItem={({ item }) => (
-            <View className="flex-row items-start justify-between">
-              <View className="flex-1 pr-3">
+            <View className="flex-row items-start gap-3">
+              {/* Ảnh sản phẩm */}
+              {item.imageUrl ? (
+                <View className="w-20 h-20 rounded-lg overflow-hidden bg-zinc-50">
+                  <Image
+                    source={{ uri: item.imageUrl }}
+                    resizeMode="contain"
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                </View>
+              ) : (
+                <View className="w-20 h-20 rounded-lg bg-zinc-100 items-center justify-center">
+                  <Text className="text-zinc-400 text-xs">No image</Text>
+                </View>
+              )}
+
+              {/* Thông tin sản phẩm */}
+              <View className="flex-1">
                 <Text className="font-medium">
                   {item.productName} • {item.unitName}
                 </Text>
@@ -96,23 +124,27 @@ export default function OrderDetailScreen() {
                     🎁 {item.promotionInfo}
                   </Text>
                 )}
-              </View>
-              <View className="items-end">
-                {item.discountAmount ? (
-                  <>
-                    <Text className="text-zinc-400 line-through">
-                      {money(item.originalPrice)}
-                    </Text>
-                    <Text className="font-semibold text-orange-600">
-                      {money(item.originalPrice - item.discountAmount)}
-                    </Text>
-                  </>
-                ) : (
-                  <Text className="font-semibold">
-                    {money(item.originalPrice)}
-                  </Text>
-                )}
-                <Text className="text-zinc-500 mt-1">SL: {item.quantity}</Text>
+
+                {/* Giá và SL */}
+                <View className="mt-2 flex-row items-center justify-between">
+                  <View>
+                    {item.discountAmount ? (
+                      <>
+                        <Text className="text-zinc-400 line-through text-xs">
+                          {money(item.originalPrice)}
+                        </Text>
+                        <Text className="font-semibold text-orange-600">
+                          {money(item.originalPrice - item.discountAmount)}
+                        </Text>
+                      </>
+                    ) : (
+                      <Text className="font-semibold">
+                        {money(item.originalPrice)}
+                      </Text>
+                    )}
+                  </View>
+                  <Text className="text-zinc-500 text-sm">SL: {item.quantity}</Text>
+                </View>
               </View>
             </View>
           )}

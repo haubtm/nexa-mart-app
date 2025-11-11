@@ -48,6 +48,7 @@ export interface IOrderResponseData {
     discountAmount: number;
     lineTotal: number;
     promotionInfo: string | null;
+    imageUrl?: string | null;
   }[];
   subtotal: number;
   totalDiscount: number;

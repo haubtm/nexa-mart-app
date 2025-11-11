@@ -1,4 +1,9 @@
-import { EDeliveryType, EPaymentMethod } from '@/lib';
+import {
+  EDeliveryType,
+  EOrderStatus,
+  EPaymentMethod,
+  EPaymentProvider,
+} from '@/lib';
 import { queryClient } from '@/providers/ReactQuery';
 import {
   cartKeys,
@@ -6,11 +11,12 @@ import {
   useCartDeleteProduct,
   useCartList,
   useCartUpdate,
+  useOrderById,
   useOrderCreate,
 } from '@/react-query';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -23,6 +29,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 
 function Row({
   label,
@@ -49,6 +56,30 @@ function Row({
   );
 }
 
+function getPaymentDeepLink(
+  provider: EPaymentProvider,
+  paymentUrl: string,
+): string {
+  // Với các provider khác nhau, tạo deep link phù hợp
+  // Nếu backend đã cung cấp paymentUrl hoàn chỉnh, sử dụng trực tiếp
+  switch (provider) {
+    case EPaymentProvider.MOMO:
+      // Momo app scheme (nếu có URL scheme từ backend)
+      return paymentUrl || 'momo://';
+    case EPaymentProvider.VNPAY:
+      // VNPay URL từ backend
+      return paymentUrl || 'https://vnpay.vn/';
+    case EPaymentProvider.PAYOS:
+      // PayOS URL từ backend
+      return paymentUrl || 'https://payos.vn/';
+    case EPaymentProvider.BANK_TRANSFER:
+      // Bank transfer link từ backend
+      return paymentUrl || '';
+    default:
+      return paymentUrl || '';
+  }
+}
+
 export default function CartScreen() {
   const router = useRouter();
 
@@ -64,7 +95,7 @@ export default function CartScreen() {
     EDeliveryType.HOME_DELIVERY,
   );
   const [paymentMethod, setPaymentMethod] = useState<EPaymentMethod>(
-    EPaymentMethod.CASH,
+    EPaymentMethod.ONLINE,
   );
   const [deliveryAddress, setDeliveryAddress] = useState<string>('Ho Chi Minh');
   const [orderNote, setOrderNote] = useState<string>('');
@@ -77,6 +108,34 @@ export default function CartScreen() {
     expirationTime?: string;
   } | null>(null);
   const [lastOrderCode, setLastOrderCode] = useState<string | null>(null);
+  const [lastOrderId, setLastOrderId] = useState<number | null>(null);
+  const [selectedPaymentProvider, setSelectedPaymentProvider] =
+    useState<EPaymentProvider | null>(null);
+
+  // Fetch chi tiết đơn hàng với polling mỗi 3 giây khi modal mở
+  const { data: orderData, isPending: orderPending } = useOrderById(
+    {
+      orderId: lastOrderId!,
+    },
+    { refetchInterval: lastOrderId && showPayModal ? 3000 : false },
+  );
+
+  // Auto navigate khi order status khác UNPAID
+  useEffect(() => {
+    if (orderData?.data && lastOrderId) {
+      const orderStatus = orderData.data.orderStatus;
+      if (orderStatus && orderStatus !== EOrderStatus.UNPAID) {
+        // Refresh giỏ hàng
+        queryClient.invalidateQueries({ queryKey: cartKeys.all });
+        // Chuyển sang trang chi tiết đơn hàng
+        setShowPayModal(false);
+        setSelectedPaymentProvider(null);
+        setTimeout(() => {
+          router.push(`/orders/${lastOrderId}`);
+        }, 300);
+      }
+    }
+  }, [orderData?.data, lastOrderId]);
 
   const cart = data?.data;
   const items = cart?.items ?? [];
@@ -383,49 +442,6 @@ export default function CartScreen() {
               )}
             </View>
 
-            {/* Phương thức thanh toán */}
-            <View className="mt-4 bg-white rounded-2xl p-4 border border-zinc-200">
-              <Text className="text-[15px] font-semibold text-zinc-900 mb-3">
-                Phương thức thanh toán
-              </Text>
-
-              <View className="h-12 bg-zinc-100 rounded-2xl p-1 flex-row">
-                <Pressable
-                  onPress={() => setPaymentMethod(EPaymentMethod.CASH)}
-                  className={`flex-1 rounded-xl items-center justify-center ${
-                    paymentMethod === EPaymentMethod.CASH ? 'bg-white' : ''
-                  }`}
-                >
-                  <Text
-                    className={`font-semibold ${
-                      paymentMethod === EPaymentMethod.CASH
-                        ? 'text-green-700'
-                        : 'text-zinc-400'
-                    }`}
-                  >
-                    Tiền mặt
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={() => setPaymentMethod(EPaymentMethod.ONLINE)}
-                  className={`flex-1 rounded-xl items-center justify-center ${
-                    paymentMethod === EPaymentMethod.ONLINE ? 'bg-white' : ''
-                  }`}
-                >
-                  <Text
-                    className={`font-semibold ${
-                      paymentMethod === EPaymentMethod.ONLINE
-                        ? 'text-green-700'
-                        : 'text-zinc-400'
-                    }`}
-                  >
-                    Chuyển khoản
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-
             {/* Ghi chú */}
             <View className="mt-4 bg-white rounded-2xl p-4 border border-zinc-200">
               <Text className="text-[15px] font-semibold text-zinc-900 mb-2">
@@ -484,7 +500,7 @@ export default function CartScreen() {
                   try {
                     const payload: any = {
                       deliveryType,
-                      paymentMethod,
+                      paymentMethod: EPaymentMethod.ONLINE,
                       orderNote,
                     };
                     if (deliveryType === EDeliveryType.HOME_DELIVERY) {
@@ -496,36 +512,22 @@ export default function CartScreen() {
                     const orderId = res?.data?.orderId;
                     const orderCode = res?.data?.orderCode || '';
                     setLastOrderCode(orderCode);
+                    setLastOrderId(orderId);
 
-                    if (paymentMethod === EPaymentMethod.CASH) {
-                      Alert.alert(
-                        'Đặt hàng thành công',
-                        `Mã đơn: ${orderCode}`,
-                        [
-                          {
-                            text: 'Xem đơn',
-                            onPress: () => router.push(`/orders/${orderId}`),
-                          },
-                          { text: 'Đóng' },
-                        ],
-                      );
+                    const info = res?.data?.onlinePaymentInfo;
+                    if (info?.qrCode || info?.paymentUrl) {
+                      setPayInfo({
+                        qrCode: info.qrCode,
+                        paymentUrl: info.paymentUrl,
+                        paymentProvider: info.paymentProvider,
+                        expirationTime: info.expirationTime,
+                      });
+                      setShowPayModal(true);
                     } else {
-                      const info = res?.data?.onlinePaymentInfo;
-                      if (info?.qrCode || info?.paymentUrl) {
-                        setPayInfo({
-                          qrCode: info.qrCode,
-                          paymentUrl: info.paymentUrl,
-                          paymentProvider: info.paymentProvider,
-                          expirationTime: info.expirationTime,
-                        });
-                        setShowPayModal(true);
-                      } else {
-                        Alert.alert(
-                          'Đặt hàng thành công',
-                          'Không tìm thấy thông tin thanh toán.',
-                        );
-                        router.push(`/orders/${orderId}`);
-                      }
+                      Alert.alert(
+                        'Lỗi',
+                        'Không tìm thấy thông tin thanh toán. Vui lòng thử lại.',
+                      );
                     }
                   } catch (e) {
                     Alert.alert(
@@ -547,12 +549,15 @@ export default function CartScreen() {
         }
       />
 
-      {/* Modal QR Online */}
+      {/* Modal Payment Provider */}
       <Modal
         visible={showPayModal}
         transparent
         animationType="slide"
-        onRequestClose={() => setShowPayModal(false)}
+        onRequestClose={() => {
+          setShowPayModal(false);
+          setSelectedPaymentProvider(null);
+        }}
       >
         <View className="flex-1 bg-black/40 items-center justify-end">
           <View className="w-full bg-white rounded-t-3xl p-6">
@@ -560,52 +565,164 @@ export default function CartScreen() {
               Đơn hàng {lastOrderCode || ''}
             </Text>
             <Text className="text-center text-zinc-500 mb-4">
-              Quét mã để chuyển khoản
+              Chọn phương thức thanh toán
             </Text>
 
-            <View className="items-center justify-center mb-4">
-              {!payInfo?.qrCode ? (
-                <Text className="text-zinc-500">
-                  Không có QR, vui lòng dùng link
-                </Text>
-              ) : (
-                <View className="w-[230px] h-[230px] rounded-2xl bg-white items-center justify-center border border-zinc-200">
-                  {/* Nếu đã cài react-native-qrcode-svg, thay block này bằng <QRCode value={payInfo.qrCode} size={220} /> */}
-                  <Text className="text-center text-[12px] text-zinc-500 px-2">
-                    {payInfo.qrCode.slice(0, 64)}...
-                  </Text>
-                </View>
-              )}
-            </View>
+            {/* Provider Selection */}
+            {!selectedPaymentProvider ? (
+              <View className="gap-3 mb-4">
+                {[
+                  EPaymentProvider.MOMO,
+                  EPaymentProvider.VNPAY,
+                  EPaymentProvider.PAYOS,
+                  EPaymentProvider.BANK_TRANSFER,
+                ].map((provider) => (
+                  <Pressable
+                    key={provider}
+                    onPress={() => setSelectedPaymentProvider(provider)}
+                    className="h-16 rounded-xl bg-zinc-50 border border-zinc-200 items-center justify-center flex-row gap-3 px-4"
+                  >
+                    <View className="w-12 h-12 rounded-lg bg-white items-center justify-center border border-zinc-200">
+                      {provider === EPaymentProvider.MOMO && (
+                        <Text className="text-sm font-bold text-red-600">
+                          M
+                        </Text>
+                      )}
+                      {provider === EPaymentProvider.VNPAY && (
+                        <Text className="text-sm font-bold text-blue-600">
+                          VN
+                        </Text>
+                      )}
+                      {provider === EPaymentProvider.PAYOS && (
+                        <Text className="text-sm font-bold text-purple-600">
+                          PO
+                        </Text>
+                      )}
+                      {provider === EPaymentProvider.BANK_TRANSFER && (
+                        <Text className="text-sm font-bold text-green-600">
+                          BT
+                        </Text>
+                      )}
+                    </View>
+                    <View className="flex-1">
+                      <Text className="font-semibold text-zinc-900">
+                        {provider === EPaymentProvider.MOMO && 'Momo'}
+                        {provider === EPaymentProvider.VNPAY && 'VNPay'}
+                        {provider === EPaymentProvider.PAYOS && 'PayOS'}
+                        {provider === EPaymentProvider.BANK_TRANSFER &&
+                          'Chuyển khoản'}
+                      </Text>
+                      <Text className="text-xs text-zinc-500">
+                        {provider === EPaymentProvider.MOMO &&
+                          'Ví điện tử Momo'}
+                        {provider === EPaymentProvider.VNPAY &&
+                          'Cổng thanh toán VNPay'}
+                        {provider === EPaymentProvider.PAYOS &&
+                          'PayOS - Giải pháp thanh toán'}
+                        {provider === EPaymentProvider.BANK_TRANSFER &&
+                          'Chuyển khoản ngân hàng'}
+                      </Text>
+                    </View>
+                    <MaterialCommunityIcons
+                      name="chevron-right"
+                      size={24}
+                      color="#a1a1a1"
+                    />
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <View className="mb-4">
+                {/* Back button and Provider Info */}
+                <Pressable
+                  onPress={() => setSelectedPaymentProvider(null)}
+                  className="h-12 rounded-xl bg-zinc-100 items-center justify-center flex-row gap-2 mb-4"
+                >
+                  <MaterialCommunityIcons
+                    name="chevron-left"
+                    size={20}
+                    color="#111827"
+                  />
+                  <Text className="text-zinc-800 font-medium">Quay lại</Text>
+                </Pressable>
 
-            {!!payInfo?.paymentUrl && (
-              <Pressable
-                onPress={() => Linking.openURL(payInfo.paymentUrl!)}
-                className="h-11 rounded-xl bg-zinc-100 items-center justify-center mb-2"
-              >
-                <Text className="text-zinc-800">
-                  Mở trang thanh toán (tuỳ chọn)
-                </Text>
-              </Pressable>
+                <View className="bg-zinc-50 rounded-xl p-4 mb-4">
+                  <Text className="font-semibold text-zinc-900 mb-1">
+                    {selectedPaymentProvider === EPaymentProvider.MOMO &&
+                      'Ví Momo'}
+                    {selectedPaymentProvider === EPaymentProvider.VNPAY &&
+                      'VNPay'}
+                    {selectedPaymentProvider === EPaymentProvider.PAYOS &&
+                      'PayOS'}
+                    {selectedPaymentProvider ===
+                      EPaymentProvider.BANK_TRANSFER && 'Chuyển khoản'}
+                  </Text>
+                  <Text className="text-sm text-zinc-600 mb-3">
+                    {selectedPaymentProvider === EPaymentProvider.MOMO &&
+                      'Mở ứng dụng Momo để hoàn tất thanh toán'}
+                    {selectedPaymentProvider === EPaymentProvider.VNPAY &&
+                      'Mở ứng dụng VNPay để hoàn tất thanh toán'}
+                    {selectedPaymentProvider === EPaymentProvider.PAYOS &&
+                      'Mở trang PayOS để hoàn tất thanh toán'}
+                    {selectedPaymentProvider ===
+                      EPaymentProvider.BANK_TRANSFER &&
+                      'Thực hiện chuyển khoản tới tài khoản cửa hàng'}
+                  </Text>
+
+                  {payInfo?.qrCode && (
+                    <View className="w-full rounded-lg bg-white items-center justify-center border border-zinc-200 mb-3 p-3">
+                      <QRCode
+                        value={payInfo.qrCode}
+                        size={180}
+                        color="#111827"
+                        backgroundColor="#ffffff"
+                      />
+                    </View>
+                  )}
+                </View>
+
+                {/* Payment Button */}
+                <Pressable
+                  onPress={() => {
+                    if (payInfo?.paymentUrl && selectedPaymentProvider) {
+                      const deepLink = getPaymentDeepLink(
+                        selectedPaymentProvider,
+                        payInfo.paymentUrl,
+                      );
+                      if (deepLink) {
+                        Linking.openURL(deepLink).catch(() => {
+                          // If app not installed, try opening with web URL
+                          if (payInfo.paymentUrl) {
+                            Linking.openURL(payInfo.paymentUrl);
+                          }
+                        });
+                      }
+                    }
+                  }}
+                  className="h-12 rounded-xl bg-red-600 items-center justify-center mb-2"
+                >
+                  <Text className="text-white font-semibold">
+                    Mở{' '}
+                    {selectedPaymentProvider === EPaymentProvider.MOMO &&
+                      'Momo'}
+                    {selectedPaymentProvider === EPaymentProvider.VNPAY &&
+                      'VNPay'}
+                    {selectedPaymentProvider === EPaymentProvider.PAYOS &&
+                      'PayOS'}
+                    {selectedPaymentProvider ===
+                      EPaymentProvider.BANK_TRANSFER && 'Trang thanh toán'}
+                  </Text>
+                </Pressable>
+              </View>
             )}
 
-            <View className="flex-row gap-2">
-              <Pressable
-                onPress={() => setShowPayModal(false)}
-                className="flex-1 h-12 rounded-xl bg-zinc-100 items-center justify-center"
-              >
-                <Text className="text-zinc-800 font-medium">Để sau</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  setShowPayModal(false);
-                  if (lastOrderCode) router.push('/order');
-                }}
-                className="flex-1 h-12 rounded-xl bg-green-600 items-center justify-center"
-              >
-                <Text className="text-white font-semibold">Xem đơn hàng</Text>
-              </Pressable>
-            </View>
+            {/* Loading state - Đang kiểm tra trạng thái đơn hàng */}
+            {orderPending && (
+              <View className="h-12 rounded-xl bg-zinc-100 items-center justify-center flex-row gap-2">
+                <ActivityIndicator size="small" color="#666" />
+                <Text className="text-zinc-700 font-medium">Đang xử lý...</Text>
+              </View>
+            )}
 
             {!!payInfo?.expirationTime && (
               <Text className="text-[12px] text-center text-zinc-500 mt-3">

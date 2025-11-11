@@ -19,15 +19,20 @@ const statusChipStyle: Record<
   EOrderStatus | 'UNKNOWN',
   { bg: string; text: string; label: string }
 > = {
+  [EOrderStatus.UNPAID]: {
+    bg: 'bg-orange-50',
+    text: 'text-orange-700',
+    label: 'Chưa thanh toán',
+  },
   [EOrderStatus.PENDING]: {
     bg: 'bg-amber-50',
     text: 'text-amber-700',
-    label: 'Chờ giao',
+    label: 'Đang xử lý',
   },
-  [EOrderStatus.PREPARING]: {
+  [EOrderStatus.PREPARED]: {
     bg: 'bg-sky-50',
     text: 'text-sky-700',
-    label: 'Đang soạn',
+    label: 'Đã chuẩn bị',
   },
   [EOrderStatus.SHIPPING]: {
     bg: 'bg-indigo-50',
@@ -37,12 +42,17 @@ const statusChipStyle: Record<
   [EOrderStatus.DELIVERED]: {
     bg: 'bg-emerald-50',
     text: 'text-emerald-700',
-    label: 'Giao thành công',
+    label: 'Đã giao hàng',
+  },
+  [EOrderStatus.COMPLETED]: {
+    bg: 'bg-green-50',
+    text: 'text-green-700',
+    label: 'Đã hoàn thành',
   },
   [EOrderStatus.CANCELLED]: {
     bg: 'bg-rose-50',
     text: 'text-rose-700',
-    label: 'Hủy đơn',
+    label: 'Đã hủy',
   },
   UNKNOWN: { bg: 'bg-zinc-50', text: 'text-zinc-600', label: 'Không rõ' },
 };
@@ -73,10 +83,12 @@ const SegButton = ({
 
 const STATUS_TABS: Array<{ key: 'ALL' | EOrderStatus; label: string }> = [
   { key: 'ALL', label: 'Tất cả' },
-  { key: EOrderStatus.PENDING, label: 'Chờ' },
-  { key: EOrderStatus.PREPARING, label: 'Chuẩn bị' },
+  { key: EOrderStatus.UNPAID, label: 'Chưa thanh toán' },
+  { key: EOrderStatus.PENDING, label: 'Đang xử lý' },
+  { key: EOrderStatus.PREPARED, label: 'Đã chuẩn bị' },
   { key: EOrderStatus.SHIPPING, label: 'Đang giao' },
-  { key: EOrderStatus.DELIVERED, label: 'Thành công' },
+  { key: EOrderStatus.DELIVERED, label: 'Đã giao' },
+  { key: EOrderStatus.COMPLETED, label: 'Hoàn thành' },
   { key: EOrderStatus.CANCELLED, label: 'Đã hủy' },
 ];
 
@@ -87,6 +99,7 @@ export default function OrdersListScreen() {
   const [page, setPage] = useState(0);
   const [items, setItems] = useState<any[]>([]);
   const pageSize = 10;
+  const scrollViewRef = useRef<ScrollView>(null);
 
   // Params truy vấn ổn định theo tab/page
   const params = useMemo(
@@ -152,6 +165,8 @@ export default function OrdersListScreen() {
     lastApplied.current = null;
     setItems([]);
     setPage(0);
+    // Scroll tabs về đầu
+    scrollViewRef.current?.scrollTo({ x: 0, animated: true });
   };
 
   // ===== Renderers =====
@@ -170,6 +185,7 @@ export default function OrdersListScreen() {
       {/* Segmented tabs (CUỘN NGANG) */}
       <View className="mx-4 -mt-5 rounded-2xl bg-zinc-100 border border-zinc-200">
         <ScrollView
+          ref={scrollViewRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ padding: 6, paddingRight: 10 }}
