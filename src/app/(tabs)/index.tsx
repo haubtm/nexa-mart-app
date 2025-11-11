@@ -1,10 +1,11 @@
 import type { IProductListRequest } from '@/dtos';
 import { useCartList, useProductList, useProductUnitById } from '@/react-query';
+import { productKeys } from '@/react-query/query-keys';
 import { useAppSelector } from '@/redux/hooks';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useRouter } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -65,7 +66,7 @@ function ProductUnitCard({ item }: { item: UnitCardItem }) {
           <Image
             source={{ uri: primaryImage }}
             resizeMode="contain"
-            className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
           />
         ) : (
           <Text className="text-zinc-400">No image</Text>
@@ -122,38 +123,61 @@ export default function HomeScreen() {
     size: 12,
     searchTerm: '',
   });
+  const [allUnitItems, setAllUnitItems] = useState<UnitCardItem[]>([]);
+
   const { data, isPending, isFetching } = useProductList(query);
   const { data: cartData } = useCartList();
   const totalItems = cartData?.data?.totalItems ?? 0;
-  const unitItems: UnitCardItem[] = useMemo(() => {
+
+  // Accumulate units from new pages
+  useEffect(() => {
     const products = data?.data?.products ?? [];
-    const items: UnitCardItem[] = [];
+    const newItems: UnitCardItem[] = [];
     for (const p of products)
       for (const u of p.units ?? [])
-        items.push({
+        newItems.push({
           id: u.id!,
           key: `${p.id}-${u.id}`,
           productId: p.id,
           name: p.name,
           unitName: u.unitName,
         });
-    return items;
-  }, [data]);
 
-  const totalElements = data?.data?.pageInfo?.totalElements ?? 0;
-  const canGrow = (query.size ?? 0) < totalElements;
+    if (query.page === 0) {
+      // Reset khi page 0 (refresh hoặc search)
+      setAllUnitItems(newItems);
+    } else {
+      // Thêm items từ trang mới
+      setAllUnitItems((prev) => [...prev, ...newItems]);
+    }
+  }, [data, query.page]);
+
+  const unitItems = allUnitItems;
+
+  const pageInfo = data?.data?.pageInfo;
+  const totalPages = pageInfo?.totalPages ?? 0;
+  const currentPage = query.page ?? 0;
+  const canGrow = currentPage + 1 < totalPages;
+
   const handleEndReached = useCallback(() => {
     if (!canGrow || isFetching) return;
     setQuery((prev) => ({
       ...prev,
-      size: Math.min((prev.size ?? 0) + 12, totalElements),
+      page: (prev.page ?? 0) + 1,
     }));
-  }, [canGrow, isFetching, totalElements]);
+  }, [canGrow, isFetching]);
 
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
-      await queryClient.invalidateQueries();
+      // Reset to first page khi refresh
+      setQuery({
+        page: 0,
+        size: 12,
+        searchTerm: '',
+      });
+      // Invalidate product list queries
+      await queryClient.invalidateQueries({ queryKey: productKeys.lists() });
     } finally {
       setRefreshing(false);
     }

@@ -167,7 +167,7 @@ export default function ProductDetailScreen() {
                     <Image
                       source={{ uri }}
                       resizeMode="contain"
-                      className="w-full h-full"
+                      style={{ width: '100%', height: '100%' }}
                     />
                   </View>
                 ))

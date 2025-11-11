@@ -30,7 +30,7 @@ export function ProductCard({ item }: ProductCardProps) {
           <Image
             source={{ uri: item.image_url }}
             resizeMode="contain"
-            className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
           />
         ) : (
           <Text className="text-zinc-400">Không có ảnh</Text>
