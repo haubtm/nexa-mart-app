@@ -1,6 +1,7 @@
 import { ESenderType } from '@/lib';
 import { IResponse } from '../common';
 import {
+  IStructuredCartData,
   IStructuredOrderData,
   IStructuredPolicyData,
   IStructuredProductData,
@@ -23,6 +24,7 @@ export interface IChatMessage {
     promotions?: IStructuredPromotionData[];
     stock?: IStructuredStockData[];
     policy?: IStructuredPolicyData[];
+    cart?: IStructuredCartData;
   } | null;
   suggestions?: string[];
   timestamp: string;

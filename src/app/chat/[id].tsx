@@ -1,5 +1,8 @@
 import { ProductCard } from '@/components/ProductCard';
 import { PromotionCard } from '@/components/PromotionCard';
+import { PolicyCard } from '@/components/PolicyCard';
+import { OrderCard } from '@/components/OrderCard';
+import { StockCard } from '@/components/StockCard';
 import { SuggestionCard } from '@/components/SuggestionCard';
 import type { IChatMessage } from '@/dtos';
 import { ESenderType } from '@/lib';
@@ -158,6 +161,33 @@ export default function ChatRoomScreen() {
           <View className="mt-2 w-full">
             {item.data.promotions.map((promo, idx) => (
               <PromotionCard key={idx} item={promo} />
+            ))}
+          </View>
+        )}
+
+        {/* Hiển thị chính sách nếu có */}
+        {!mine && item.data?.policy && item.data.policy.length > 0 && (
+          <View className="mt-2 w-full">
+            {item.data.policy.map((policy, idx) => (
+              <PolicyCard key={idx} item={policy} />
+            ))}
+          </View>
+        )}
+
+        {/* Hiển thị đơn hàng nếu có */}
+        {!mine && item.data?.orders && item.data.orders.length > 0 && (
+          <View className="mt-2 w-full">
+            {item.data.orders.map((order, idx) => (
+              <OrderCard key={idx} item={order} />
+            ))}
+          </View>
+        )}
+
+        {/* Hiển thị tồn kho nếu có */}
+        {!mine && item.data?.stock && item.data.stock.length > 0 && (
+          <View className="mt-2 w-full">
+            {item.data.stock.map((stock, idx) => (
+              <StockCard key={idx} item={stock} />
             ))}
           </View>
         )}
