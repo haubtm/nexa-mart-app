@@ -24,7 +24,7 @@ export interface IChatMessage {
     promotions?: IStructuredPromotionData[];
     stock?: IStructuredStockData[];
     policy?: IStructuredPolicyData[];
-    cart?: IStructuredCartData;
+    cart?: IStructuredCartData[];
   } | null;
   suggestions?: string[];
   timestamp: string;
@@ -53,6 +53,7 @@ export interface IConversationMessageResponse
         promotions: IStructuredPromotionData[] | null;
         stock: IStructuredStockData[] | null;
         policy: IStructuredPolicyData[] | null;
+        cart: IStructuredCartData[] | null;
       };
       suggestions: string[];
       metadata: {

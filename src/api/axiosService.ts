@@ -7,7 +7,7 @@ const API_BACKEND_URL = process.env.EXPO_PUBLIC_API_BACKEND_URL;
 const requestInterceptor = async (config: InternalAxiosRequestConfig) => {
   // const token = await AsyncStorage.getItem('token');
   const token =
-    'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDVVNUT01FUjpoYXVidG02OTlAZ21haWwuY29tIiwiaWF0IjoxNzYyOTI1ODM2LCJleHAiOjE3NjMwMTIyMzZ9.tB5FXjvRkdWsfV2ru1H6S7iLkhdJXBTeCfyATPrzRaBJ97fID7vgHpUYxj8FgmcwTjSB272aJ5glWEgc7V_6fA';
+    'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDVVNUT01FUjpoYXVidG02OTlAZ21haWwuY29tIiwiaWF0IjoxNzYzMTk4NjExLCJleHAiOjE3NjMyODUwMTF9.9aqCcv1dDe-YK7qvgNSMqi0Z0ix1NYDzeZVXZ3AbhNaBnsnb6VqzexJ1_umIxXFqR91pwcgrWyQUcLseJyro-g';
   config.headers.Authorization = `Bearer ${token}`;
   return config;
 };

@@ -105,10 +105,10 @@ export interface IStructuredCartData {
     unit_price: number;
     original_total: number;
     final_total: number;
-    image_url: string;
-    stock_quantity: number;
+    image_url: string | null;
+    stock_quantity: number | null;
     has_promotion: boolean;
-    promotion_name: string;
+    promotion_name: string | null;
   }[];
   total_items: number;
   sub_total: number;

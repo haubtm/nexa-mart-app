@@ -3,6 +3,7 @@ import { PromotionCard } from '@/components/PromotionCard';
 import { PolicyCard } from '@/components/PolicyCard';
 import { OrderCard } from '@/components/OrderCard';
 import { StockCard } from '@/components/StockCard';
+import { CartDetailCard } from '@/components/CartDetailCard';
 import { SuggestionCard } from '@/components/SuggestionCard';
 import type { IChatMessage } from '@/dtos';
 import { ESenderType } from '@/lib';
@@ -188,6 +189,15 @@ export default function ChatRoomScreen() {
           <View className="mt-2 w-full">
             {item.data.stock.map((stock, idx) => (
               <StockCard key={idx} item={stock} />
+            ))}
+          </View>
+        )}
+
+        {/* Hiển thị giỏ hàng nếu có */}
+        {!mine && item.data?.cart && item.data.cart.length > 0 && (
+          <View className="mt-2 w-full">
+            {item.data.cart.map((cart, idx) => (
+              <CartDetailCard key={idx} cart={cart} />
             ))}
           </View>
         )}
