@@ -1,14 +1,16 @@
 import { ApiService } from '@/lib';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { IResponse } from '../dtos';
 
 const API_BACKEND_URL = process.env.EXPO_PUBLIC_API_BACKEND_URL;
 
 const requestInterceptor = async (config: InternalAxiosRequestConfig) => {
-  // const token = await AsyncStorage.getItem('token');
-  const token =
-    'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDVVNUT01FUjpoYXVidG02OTlAZ21haWwuY29tIiwiaWF0IjoxNzYzMTk4NjExLCJleHAiOjE3NjMyODUwMTF9.9aqCcv1dDe-YK7qvgNSMqi0Z0ix1NYDzeZVXZ3AbhNaBnsnb6VqzexJ1_umIxXFqR91pwcgrWyQUcLseJyro-g';
-  config.headers.Authorization = `Bearer ${token}`;
+  const token = await AsyncStorage.getItem('token');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 };
 

@@ -1,13 +1,21 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { InternalAxiosRequestConfig } from 'axios';
 
 export const requestInterceptor = async (
   config: InternalAxiosRequestConfig,
 ) => {
-  // const token = await AsyncStorage.getItem('token');
-  const token =
-    'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDVVNUT01FUjpoYXVidG02OTlAZ21haWwuY29tIiwiaWF0IjoxNzYzMTk4NjExLCJleHAiOjE3NjMyODUwMTF9.9aqCcv1dDe-YK7qvgNSMqi0Z0ix1NYDzeZVXZ3AbhNaBnsnb6VqzexJ1_umIxXFqR91pwcgrWyQUcLseJyro-g';
-  config.headers.Authorization = `Bearer ${token}`;
-  config.headers.Authorization = `Bearer ${token}`;
+  const token = await AsyncStorage.getItem('token');
+  console.log(
+    '[Interceptor] Token from AsyncStorage:',
+    token ? 'EXISTS' : 'NULL',
+  );
+  console.log('[Interceptor] Request URL:', config.url);
 
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log('[Interceptor] Authorization header set');
+  } else {
+    console.log('[Interceptor] No token found, skipping auth header');
+  }
   return config;
 };

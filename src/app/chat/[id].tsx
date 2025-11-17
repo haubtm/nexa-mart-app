@@ -10,7 +10,7 @@ import { ESenderType } from '@/lib';
 import { useConversationById, useConversationChat } from '@/react-query';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -33,6 +33,9 @@ export default function ChatRoomScreen() {
     [],
   );
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [lastSelectedSuggestion, setLastSelectedSuggestion] = useState<
+    string | undefined
+  >();
   const listRef = useRef<FlatList>(null);
 
   const { data, isPending, refetch } = useConversationById({
@@ -51,6 +54,9 @@ export default function ChatRoomScreen() {
     const value = text.trim();
     if (!value) return;
     setText('');
+
+    // Track request start time for analytics
+    const requestStartTime = Date.now();
 
     // Thêm user message vào optimistic
     const userMessage: IChatMessage = {
@@ -82,6 +88,11 @@ export default function ChatRoomScreen() {
         message: value,
       });
 
+      const requestEndTime = Date.now();
+
+      // Reset suggestion tracking
+      setLastSelectedSuggestion(undefined);
+
       // Lấy suggestions từ response
       const newSuggestions = response?.data?.structuredData?.suggestions ?? [];
       setSuggestions(newSuggestions);
@@ -91,9 +102,12 @@ export default function ChatRoomScreen() {
       // Reload danh sách tin nhắn từ server
       refetch();
     } catch (error) {
+      const requestEndTime = Date.now();
+
       // Nếu lỗi, xóa optimistic messages
       setOptimisticMessages([]);
       setSuggestions([]);
+      setLastSelectedSuggestion(undefined);
     }
 
     // Kéo xuống cuối sau khi gửi xong
@@ -102,6 +116,7 @@ export default function ChatRoomScreen() {
 
   const handleSuggestionPress = (suggestion: string) => {
     setText(suggestion);
+    setLastSelectedSuggestion(suggestion); // Track suggestion usage
     // Auto-scroll khi focus vào input
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
   };

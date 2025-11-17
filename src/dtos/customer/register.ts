@@ -6,6 +6,7 @@ export interface ICustomerRegisterRequest {
   name: string;
   email: string;
   phone: string;
+  customerCode?: string;
   password: string;
   confirmPassword: string;
   gender?: EGender;
