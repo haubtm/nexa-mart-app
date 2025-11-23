@@ -181,179 +181,177 @@ export default function RegisterScreen() {
           extraHeight={150}
         >
           <View className="flex-1 pt-16 pb-10">
-              {/* Header */}
-              <Animated.View entering={FadeInDown.delay(200).duration(600)}>
-                <AuthHeader
-                  title="Tạo tài khoản"
-                  subtitle="Trở thành thành viên NexaMart và trải nghiệm mua sắm đẳng cấp"
-                />
-              </Animated.View>
+            {/* Header */}
+            <Animated.View entering={FadeInDown.delay(200).duration(600)}>
+              <AuthHeader
+                title="Tạo tài khoản"
+                subtitle="Trở thành thành viên NexaMart và trải nghiệm mua sắm đẳng cấp"
+              />
+            </Animated.View>
 
-              {/* Form */}
-              <Animated.View
-                entering={FadeInUp.delay(400).duration(600)}
-                className="mt-8"
-              >
-                {/* Name Input */}
-                <LuxuryInput
-                  label="Họ và tên"
-                  placeholder="Nhập họ và tên đầy đủ"
-                  value={formData.name}
-                  onChangeText={(text) => updateFormData('name', text)}
-                  leftIcon="person-outline"
-                  error={errors.name}
-                />
+            {/* Form */}
+            <Animated.View
+              entering={FadeInUp.delay(400).duration(600)}
+              className="mt-8"
+            >
+              {/* Name Input */}
+              <LuxuryInput
+                label="Họ và tên"
+                placeholder="Nhập họ và tên đầy đủ"
+                value={formData.name}
+                onChangeText={(text) => updateFormData('name', text)}
+                leftIcon="person-outline"
+                error={errors.name}
+              />
 
-                {/* Email Input */}
-                <LuxuryInput
-                  label="Email"
-                  placeholder="Nhập địa chỉ email"
-                  value={formData.email}
-                  onChangeText={(text) => updateFormData('email', text)}
-                  leftIcon="mail-outline"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  error={errors.email}
-                />
+              {/* Email Input */}
+              <LuxuryInput
+                label="Email"
+                placeholder="Nhập địa chỉ email"
+                value={formData.email}
+                onChangeText={(text) => updateFormData('email', text)}
+                leftIcon="mail-outline"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={errors.email}
+              />
 
-                {/* Phone Input */}
-                <LuxuryInput
-                  label="Số điện thoại"
-                  placeholder="Nhập số điện thoại"
-                  value={formData.phone}
-                  onChangeText={(text) => updateFormData('phone', text)}
-                  leftIcon="call-outline"
-                  keyboardType="phone-pad"
-                  error={errors.phone}
-                />
+              {/* Phone Input */}
+              <LuxuryInput
+                label="Số điện thoại"
+                placeholder="Nhập số điện thoại"
+                value={formData.phone}
+                onChangeText={(text) => updateFormData('phone', text)}
+                leftIcon="call-outline"
+                keyboardType="phone-pad"
+                error={errors.phone}
+              />
 
-                {/* Gender Selection */}
-                <View className="mb-6">
-                  <Text className="text-sm font-medium mb-3 ml-1 text-slate-700">
-                    Giới tính (Không bắt buộc)
-                  </Text>
-                  <View className="flex-row gap-3">
-                    <Pressable
-                      onPress={() => updateFormData('gender', EGender.MALE)}
-                      className={`flex-1 py-4 px-4 rounded-2xl border ${
+              {/* Gender Selection */}
+              <View className="mb-6">
+                <Text className="text-sm font-medium mb-3 ml-1 text-slate-700">
+                  Giới tính (Không bắt buộc)
+                </Text>
+                <View className="flex-row gap-3">
+                  <Pressable
+                    onPress={() => updateFormData('gender', EGender.MALE)}
+                    className={`flex-1 py-4 px-4 rounded-2xl border ${
+                      formData.gender === EGender.MALE
+                        ? 'border-red-500 bg-red-50'
+                        : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    <Text
+                      className={`text-center font-semibold ${
                         formData.gender === EGender.MALE
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-slate-300 bg-white'
+                          ? 'text-red-600'
+                          : 'text-slate-600'
                       }`}
                     >
-                      <Text
-                        className={`text-center font-semibold ${
-                          formData.gender === EGender.MALE
-                            ? 'text-red-600'
-                            : 'text-slate-600'
-                        }`}
-                      >
-                        Nam
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => updateFormData('gender', EGender.FEMALE)}
-                      className={`flex-1 py-4 px-4 rounded-2xl border ${
+                      Nam
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => updateFormData('gender', EGender.FEMALE)}
+                    className={`flex-1 py-4 px-4 rounded-2xl border ${
+                      formData.gender === EGender.FEMALE
+                        ? 'border-red-500 bg-red-50'
+                        : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    <Text
+                      className={`text-center font-semibold ${
                         formData.gender === EGender.FEMALE
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-slate-300 bg-white'
+                          ? 'text-red-600'
+                          : 'text-slate-600'
                       }`}
                     >
-                      <Text
-                        className={`text-center font-semibold ${
-                          formData.gender === EGender.FEMALE
-                            ? 'text-red-600'
-                            : 'text-slate-600'
-                        }`}
-                      >
-                        Nữ
-                      </Text>
-                    </Pressable>
-                  </View>
-                </View>
-
-                {/* Date of Birth Input */}
-                <DatePickerInput
-                  label="Ngày sinh (Không bắt buộc)"
-                  value={formData.dateOfBirth}
-                  onChange={(date) => updateFormData('dateOfBirth', date)}
-                  maximumDate={new Date()}
-                  minimumDate={new Date(1950, 0, 1)}
-                />
-
-                {/* Address Selector */}
-                <View className="mb-6">
-                  <Text className="text-sm font-medium mb-3 ml-1 text-slate-700">
-                    Địa chỉ (Không bắt buộc)
-                  </Text>
-                  <AddressPicker
-                    value={formData.addressDetail}
-                    onChange={(address) =>
-                      updateFormData('addressDetail', address)
-                    }
-                  />
-                </View>
-
-                {/* Password Input */}
-                <LuxuryInput
-                  label="Mật khẩu"
-                  placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
-                  value={formData.password}
-                  onChangeText={(text) => updateFormData('password', text)}
-                  leftIcon="lock-closed-outline"
-                  rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  onRightIconPress={() => setShowPassword(!showPassword)}
-                  secureTextEntry={!showPassword}
-                  error={errors.password}
-                />
-
-                {/* Confirm Password Input */}
-                <LuxuryInput
-                  label="Xác nhận mật khẩu"
-                  placeholder="Nhập lại mật khẩu"
-                  value={formData.confirmPassword}
-                  onChangeText={(text) =>
-                    updateFormData('confirmPassword', text)
-                  }
-                  leftIcon="lock-closed-outline"
-                  rightIcon={
-                    showConfirmPassword ? 'eye-off-outline' : 'eye-outline'
-                  }
-                  onRightIconPress={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
-                  secureTextEntry={!showConfirmPassword}
-                  error={errors.confirmPassword}
-                />
-
-                {/* Register Button */}
-                <View className="mt-2">
-                  <LuxuryButton
-                    title="Đăng ký"
-                    onPress={handleRegister}
-                    isLoading={isLoading}
-                    variant="primary"
-                  />
-                </View>
-
-                {/* Divider */}
-                <View className="flex-row items-center my-8">
-                  <View className="flex-1 h-px bg-slate-300" />
-                  <Text className="text-slate-500 mx-4 text-sm">hoặc</Text>
-                  <View className="flex-1 h-px bg-slate-300" />
-                </View>
-
-                {/* Login Link */}
-                <View className="flex-row justify-center items-center mb-6">
-                  <Text className="text-slate-600 text-base">
-                    Đã có tài khoản?{' '}
-                  </Text>
-                  <Pressable onPress={() => router.back()}>
-                    <Text className="text-red-600 text-base font-semibold">
-                      Đăng nhập ngay
+                      Nữ
                     </Text>
                   </Pressable>
                 </View>
+              </View>
+
+              {/* Date of Birth Input */}
+              <DatePickerInput
+                label="Ngày sinh (Không bắt buộc)"
+                value={formData.dateOfBirth}
+                onChange={(date) => updateFormData('dateOfBirth', date)}
+                maximumDate={new Date()}
+                minimumDate={new Date(1950, 0, 1)}
+              />
+
+              {/* Address Selector */}
+              <View className="mb-6">
+                <Text className="text-sm font-medium mb-3 ml-1 text-slate-700">
+                  Địa chỉ (Không bắt buộc)
+                </Text>
+                <AddressPicker
+                  value={formData.addressDetail}
+                  onChange={(address) =>
+                    updateFormData('addressDetail', address)
+                  }
+                />
+              </View>
+
+              {/* Password Input */}
+              <LuxuryInput
+                label="Mật khẩu"
+                placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
+                value={formData.password}
+                onChangeText={(text) => updateFormData('password', text)}
+                leftIcon="lock-closed-outline"
+                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowPassword(!showPassword)}
+                secureTextEntry={!showPassword}
+                error={errors.password}
+              />
+
+              {/* Confirm Password Input */}
+              <LuxuryInput
+                label="Xác nhận mật khẩu"
+                placeholder="Nhập lại mật khẩu"
+                value={formData.confirmPassword}
+                onChangeText={(text) => updateFormData('confirmPassword', text)}
+                leftIcon="lock-closed-outline"
+                rightIcon={
+                  showConfirmPassword ? 'eye-off-outline' : 'eye-outline'
+                }
+                onRightIconPress={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
+                secureTextEntry={!showConfirmPassword}
+                error={errors.confirmPassword}
+              />
+
+              {/* Register Button */}
+              <View className="mt-2">
+                <LuxuryButton
+                  title="Đăng ký"
+                  onPress={handleRegister}
+                  isLoading={isLoading}
+                  variant="primary"
+                />
+              </View>
+
+              {/* Divider */}
+              <View className="flex-row items-center my-8">
+                <View className="flex-1 h-px bg-slate-300" />
+                <Text className="text-slate-500 mx-4 text-sm">hoặc</Text>
+                <View className="flex-1 h-px bg-slate-300" />
+              </View>
+
+              {/* Login Link */}
+              <View className="flex-row justify-center items-center mb-6">
+                <Text className="text-slate-600 text-base">
+                  Đã có tài khoản?{' '}
+                </Text>
+                <Pressable onPress={() => router.back()}>
+                  <Text className="text-red-600 text-base font-semibold">
+                    Đăng nhập ngay
+                  </Text>
+                </Pressable>
+              </View>
             </Animated.View>
           </View>
         </KeyboardAwareScrollView>

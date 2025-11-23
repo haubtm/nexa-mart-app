@@ -14,4 +14,5 @@ export interface ICustomerRegisterRequest {
   dateOfBirth?: string;
 }
 
-export interface ICustomerRegisterResponse extends IResponse<ICustomerResponseData> {}
+export interface ICustomerRegisterResponse
+  extends IResponse<ICustomerResponseData> {}

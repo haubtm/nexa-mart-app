@@ -2,7 +2,14 @@ import { EPaymentMethod, orderStatusMap, paymentStatusMap } from '@/lib';
 import { useOrderById } from '@/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const money = (n?: number | null) => (n ?? 0).toLocaleString('vi-VN') + 'đ';
@@ -54,10 +61,7 @@ export default function OrderDetailScreen() {
               Đơn hàng #{order.orderCode || order.orderId}
             </Text>
           </View>
-          <Pressable
-            onPress={() => router.push('/')}
-            className="ml-2 p-2"
-          >
+          <Pressable onPress={() => router.push('/')} className="ml-2 p-2">
             <MaterialIcons name="home" size={24} color="white" />
           </Pressable>
         </View>
@@ -143,7 +147,9 @@ export default function OrderDetailScreen() {
                       </Text>
                     )}
                   </View>
-                  <Text className="text-zinc-500 text-sm">SL: {item.quantity}</Text>
+                  <Text className="text-zinc-500 text-sm">
+                    SL: {item.quantity}
+                  </Text>
                 </View>
               </View>
             </View>

@@ -1,4 +1,7 @@
-import axios, { type AxiosRequestConfig, type CreateAxiosDefaults } from 'axios';
+import axios, {
+  type AxiosRequestConfig,
+  type CreateAxiosDefaults,
+} from 'axios';
 
 export class ApiService {
   private axiosInstance;
@@ -11,13 +14,15 @@ export class ApiService {
       ...config,
     });
 
-    this.addRequestInterceptor = this.axiosInstance.interceptors.request.use.bind(
-      this.axiosInstance.interceptors.request,
-    );
+    this.addRequestInterceptor =
+      this.axiosInstance.interceptors.request.use.bind(
+        this.axiosInstance.interceptors.request,
+      );
 
-    this.addResponseInterceptor = this.axiosInstance.interceptors.response.use.bind(
-      this.axiosInstance.interceptors.response,
-    );
+    this.addResponseInterceptor =
+      this.axiosInstance.interceptors.response.use.bind(
+        this.axiosInstance.interceptors.response,
+      );
   }
 
   public async get<T = any>(url: string, config?: AxiosRequestConfig) {
@@ -26,19 +31,31 @@ export class ApiService {
     return response.data;
   }
 
-  public async post<T = any>(url: string, body?: any, config?: AxiosRequestConfig) {
+  public async post<T = any>(
+    url: string,
+    body?: any,
+    config?: AxiosRequestConfig,
+  ) {
     const response = await this.axiosInstance.post<T>(url, body, config);
 
     return response.data;
   }
 
-  public async put<T = any>(url: string, body?: any, config?: AxiosRequestConfig) {
+  public async put<T = any>(
+    url: string,
+    body?: any,
+    config?: AxiosRequestConfig,
+  ) {
     const response = await this.axiosInstance.put<T>(url, body, config);
 
     return response.data;
   }
 
-  public async patch<T = any>(url: string, body?: any, config?: AxiosRequestConfig) {
+  public async patch<T = any>(
+    url: string,
+    body?: any,
+    config?: AxiosRequestConfig,
+  ) {
     const response = await this.axiosInstance.patch<T>(url, body, config);
 
     return response.data;
@@ -50,7 +67,11 @@ export class ApiService {
     return response.data;
   }
 
-  public async download(url: string, fileName?: string, config?: AxiosRequestConfig) {
+  public async download(
+    url: string,
+    fileName?: string,
+    config?: AxiosRequestConfig,
+  ) {
     const response = await this.get(url, {
       timeout: Infinity,
       responseType: 'blob',

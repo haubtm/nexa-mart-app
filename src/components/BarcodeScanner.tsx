@@ -1,11 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  Modal,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { extractBarcodeFromUrl } from '@/lib/utils/barcode';
@@ -118,14 +112,7 @@ export default function BarcodeScanner({
           style={{ flex: 1 }}
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
           barcodeScannerSettings={{
-            barcodeTypes: [
-              'code128',
-              'code39',
-              'ean13',
-              'ean8',
-              'upc_e',
-              'qr',
-            ],
+            barcodeTypes: ['code128', 'code39', 'ean13', 'ean8', 'upc_e', 'qr'],
           }}
         />
 
