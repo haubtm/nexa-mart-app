@@ -1,5 +1,6 @@
 import { productApi } from '@/api';
 import type {
+  IProductByBarcodeRequest,
   IProductByBrandIdRequest,
   IProductByCategoryIdRequest,
   IProductByIdRequest,
@@ -27,6 +28,14 @@ export const useProductById = (body: IProductByIdRequest) => {
   return useQuery({
     queryKey: productKeys.byId(body.id),
     queryFn: async () => await productApi.byId(body),
+  });
+};
+
+export const useProductByBarcode = (body: IProductByBarcodeRequest) => {
+  return useQuery({
+    queryKey: productKeys.byBarcodeId(body),
+    queryFn: async () => await productApi.byBarcode(body),
+    enabled: !!body.barcode,
   });
 };
 

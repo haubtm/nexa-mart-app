@@ -1,4 +1,5 @@
 import {
+  IProductByBarcodeRequest,
   IProductByBrandIdRequest,
   IProductByCategoryIdRequest,
   IProductListRequest,
@@ -19,4 +20,7 @@ export const productKeys = {
   byBrand: () => [...productKeys.all, 'byBrand'] as const,
   byBrandId: (body: IProductByBrandIdRequest) =>
     [...productKeys.byBrand(), { ...body }] as const,
+  byBarcode: () => [...productKeys.all, 'byBarcode'] as const,
+  byBarcodeId: (body: IProductByBarcodeRequest) =>
+    [...productKeys.byBarcode(), { ...body }] as const,
 };

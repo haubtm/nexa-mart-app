@@ -1,4 +1,6 @@
 import type {
+  IProductByBarcodeRequest,
+  IProductByBarcodeResponse,
   IProductByBrandIdRequest,
   IProductByBrandIdResponse,
   IProductByCategoryIdRequest,
@@ -40,6 +42,19 @@ export const productApi = {
   byId: async (body: IProductByIdRequest) => {
     const response = await apiService.get<IProductByIdResponse>(
       `${BASE_ENDPOINT}/${body.id}`,
+      {
+        params: {
+          ...body,
+        },
+      },
+    );
+
+    return response;
+  },
+
+  byBarcode: async (body: IProductByBarcodeRequest) => {
+    const response = await apiService.get<IProductByBarcodeResponse>(
+      `${BASE_ENDPOINT}/barcode/${body.barcode}`,
       {
         params: {
           ...body,
