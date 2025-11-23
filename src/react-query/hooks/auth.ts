@@ -12,3 +12,9 @@ export const useRegister = () => {
     mutationFn: authApi.register,
   });
 };
+
+export const useUpdateProfile = () => {
+  return useMutation({
+    mutationFn: authApi.updateProfile,
+  });
+};

@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
-import { View, Pressable, Text, Alert } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { AuthHeader, LuxuryInput, LuxuryButton } from '@/components/auth';
+import {
+  AuthHeader,
+  LuxuryInput,
+  LuxuryButton,
+  DatePickerInput,
+  AddressPicker,
+} from '@/components/auth';
 import { useAppDispatch, useAppSelector } from '@/redux';
 import { register, clearError } from '@/redux/slices/userSlice';
 import { EGender } from '@/lib';
+import { showToast } from '@/lib/utils/toast';
+import type { IAddressDetail } from '@/dtos';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -22,6 +30,8 @@ export default function RegisterScreen() {
     password: '',
     confirmPassword: '',
     gender: undefined as EGender | undefined,
+    dateOfBirth: '',
+    addressDetail: undefined as IAddressDetail | undefined,
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -109,6 +119,14 @@ export default function RegisterScreen() {
     if (!validateForm()) return;
 
     try {
+      // Format address from addressDetail
+      let address = '';
+      if (formData.addressDetail) {
+        const { houseNumber, wardCode, wardName, provinceCode, provinceName } =
+          formData.addressDetail;
+        address = `${houseNumber}, ${wardCode}, ${wardName}, ${provinceCode}, ${provinceName}`;
+      }
+
       const result = await dispatch(
         register({
           name: formData.name.trim(),
@@ -117,23 +135,25 @@ export default function RegisterScreen() {
           password: formData.password,
           confirmPassword: formData.confirmPassword,
           gender: formData.gender,
+          dateOfBirth: formData.dateOfBirth,
+          address: address || undefined,
         }),
       ).unwrap();
 
       if (result) {
-        Alert.alert(
-          'Thành công',
-          'Đăng ký tài khoản thành công! Bạn đã được đăng nhập tự động.',
-          [
-            {
-              text: 'OK',
-              onPress: () => router.replace('/(tabs)'),
-            },
-          ],
-        );
+        router.replace('/(tabs)');
+        setTimeout(() => {
+          showToast.success(
+            'Thành công',
+            'Đăng ký tài khoản thành công! Bạn đã được đăng nhập tự động.',
+          );
+        }, 500);
       }
-    } catch (err) {
-      Alert.alert('Lỗi', error || 'Đăng ký thất bại. Vui lòng thử lại.');
+    } catch (err: any) {
+      showToast.error(
+        'Lỗi',
+        err?.message || 'Đăng ký thất bại. Vui lòng thử lại.',
+      );
     }
   };
 
@@ -250,6 +270,28 @@ export default function RegisterScreen() {
                       </Text>
                     </Pressable>
                   </View>
+                </View>
+
+                {/* Date of Birth Input */}
+                <DatePickerInput
+                  label="Ngày sinh (Không bắt buộc)"
+                  value={formData.dateOfBirth}
+                  onChange={(date) => updateFormData('dateOfBirth', date)}
+                  maximumDate={new Date()}
+                  minimumDate={new Date(1950, 0, 1)}
+                />
+
+                {/* Address Selector */}
+                <View className="mb-6">
+                  <Text className="text-sm font-medium mb-3 ml-1 text-slate-700">
+                    Địa chỉ (Không bắt buộc)
+                  </Text>
+                  <AddressPicker
+                    value={formData.addressDetail}
+                    onChange={(address) =>
+                      updateFormData('addressDetail', address)
+                    }
+                  />
                 </View>
 
                 {/* Password Input */}

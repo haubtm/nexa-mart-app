@@ -1,16 +1,29 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  Alert,
-  SafeAreaView,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { logout, useAppDispatch, useAppSelector } from '@/redux';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppDispatch, useAppSelector, logout } from '@/redux';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import {
+  Alert,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import dayjs from 'dayjs';
+
+// Helper function to format address string by removing codes
+const formatAddressForDisplay = (addressStr?: string): string => {
+  if (!addressStr) return '';
+
+  // Format: "houseNumber, wardCode, wardName, provinceCode, provinceName"
+  const parts = addressStr.split(',').map(p => p.trim());
+
+  if (parts.length !== 5) return addressStr;
+
+  const [houseNumber, , wardName, , provinceName] = parts;
+  return `${houseNumber}, ${wardName}, ${provinceName}`;
+};
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -65,23 +78,26 @@ export default function ProfileScreen() {
   );
 
   return (
-    <LinearGradient
-      colors={['#ffffff', '#f8fafc', '#f1f5f9']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      className="flex-1"
-    >
-      <SafeAreaView className="flex-1">
-        <ScrollView className="flex-1 px-6">
-          {/* Header */}
-          <View className="pt-8 pb-6">
-            <Text className="text-3xl font-bold text-slate-800 mb-2">
-              Hồ sơ của tôi
-            </Text>
-            <Text className="text-base text-slate-600">
-              Thông tin tài khoản NexaMart
-            </Text>
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView className="flex-1">
+        {/* Header */}
+        <LinearGradient
+          colors={['#dc2626', '#991b1b']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="pt-12 pb-3 px-4"
+        >
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1">
+              <Text className="text-white text-lg font-semibold">
+                Hồ sơ của tôi
+              </Text>
+            </View>
           </View>
+        </LinearGradient>
+
+        {/* Content */}
+        <View className="px-4 py-6">
 
           {/* Avatar & Name */}
           <View className="items-center mb-8">
@@ -135,15 +151,36 @@ export default function ProfileScreen() {
               value={profile?.phone}
             />
 
-            <ProfileItem
-              icon="card-outline"
-              label="Mã khách hàng"
-              value={profile?.customerId?.toString()}
-            />
+            {profile?.dateOfBirth && (
+              <ProfileItem
+                icon="calendar-outline"
+                label="Ngày sinh"
+                value={dayjs(profile.dateOfBirth).format('DD/MM/YYYY')}
+              />
+            )}
+
+            {profile?.address && (
+              <ProfileItem
+                icon="location-outline"
+                label="Địa chỉ"
+                value={formatAddressForDisplay(profile.address)}
+              />
+            )}
           </View>
 
           {/* Action Buttons */}
-          <View className="mb-8">
+          <View className="mb-8 gap-3">
+            {/* Edit Profile Button */}
+            <Pressable
+              onPress={() => router.push('/profile/edit')}
+              className="flex-row items-center justify-center p-4 rounded-2xl border-2 border-blue-500/30 bg-blue-500/10"
+            >
+              <Ionicons name="pencil-outline" size={20} color="#3b82f6" />
+              <Text className="text-blue-600 text-base font-bold ml-2">
+                Chỉnh sửa hồ sơ
+              </Text>
+            </Pressable>
+
             {/* Logout Button */}
             <Pressable
               onPress={handleLogout}
@@ -163,8 +200,8 @@ export default function ProfileScreen() {
               © 2025 NexaMart. All rights reserved.
             </Text>
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, Text, Alert } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -8,6 +8,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { AuthHeader, LuxuryInput, LuxuryButton } from '@/components/auth';
 import { useAppDispatch, useAppSelector } from '@/redux';
 import { login, clearError } from '@/redux/slices/userSlice';
+import { showToast } from '@/lib/utils/toast';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -59,20 +60,18 @@ export default function LoginScreen() {
       ).unwrap();
 
       if (result) {
-        Alert.alert('Thành công', 'Đăng nhập thành công!', [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/(tabs)'),
-          },
-        ]);
+        router.replace('/(tabs)');
+        setTimeout(() => {
+          showToast.success('Thành công', 'Đăng nhập thành công!');
+        }, 500);
       }
     } catch (err) {
-      Alert.alert('Lỗi', error || 'Đăng nhập thất bại. Vui lòng thử lại.');
+      showToast.error('Lỗi', error || 'Đăng nhập thất bại. Vui lòng thử lại.');
     }
   };
 
   const handleForgotPassword = () => {
-    Alert.alert('Quên mật khẩu', 'Tính năng đang được phát triển');
+    showToast.info('Quên mật khẩu', 'Tính năng đang được phát triển');
   };
 
   return (

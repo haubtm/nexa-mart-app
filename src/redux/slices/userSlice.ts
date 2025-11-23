@@ -16,6 +16,9 @@ interface IProfileAccount {
   name?: string;
   email?: string;
   phone?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  address?: string;
   userRole?: EUserType;
   customerType?: ECustomerType;
 }
@@ -45,7 +48,7 @@ export const getUserInfo = createAsyncThunk('user/info', async () => {
 
 export const login = createAsyncThunk(
   'user/login',
-  async (credentials: ILoginRequest, { rejectWithValue }) => {
+  async (credentials: ILoginRequest, { rejectWithValue, dispatch }) => {
     try {
       console.log('[Login] Starting login...');
       const response = await authApi.login(credentials);
@@ -59,6 +62,17 @@ export const login = createAsyncThunk(
         // Verify token was saved
         const savedToken = await AsyncStorage.getItem('token');
         console.log('[Login] Token verification:', savedToken ? 'EXISTS' : 'NULL');
+
+        // Get full user profile info
+        console.log('[Login] Fetching full user profile...');
+        try {
+          const userInfoResponse = await dispatch(getUserInfo()).unwrap();
+          console.log('[Login] Full profile fetched successfully');
+          return userInfoResponse;
+        } catch (userInfoError) {
+          console.log('[Login] Failed to fetch user info, using login response data');
+          return response?.data;
+        }
       }
 
       console.log('[Login] Returning response data');
@@ -150,13 +164,23 @@ export const userSlice = createSlice({
     builder.addCase(login.fulfilled, (state, action) => {
       state.isLoading = false;
       state.error = undefined;
-      if (action.payload?.customer) {
+      const payload = action.payload as any;
+
+      // Check if payload is IProfileAccount (from getUserInfo)
+      if (payload?.customerId) {
+        state.profile = payload;
+      }
+      // Check if payload is IResponseData (fallback with customer field)
+      else if (payload?.customer) {
         state.profile = {
-          customerId: action.payload.customer.customerId,
-          name: action.payload.customer.name,
-          email: action.payload.customer.email,
-          phone: action.payload.customer.phone,
-          customerType: action.payload.customer.customerType,
+          customerId: payload.customer.customerId,
+          name: payload.customer.name,
+          email: payload.customer.email,
+          phone: payload.customer.phone,
+          gender: payload.customer.gender,
+          dateOfBirth: payload.customer.dateOfBirth,
+          address: payload.customer.address,
+          customerType: payload.customer.customerType,
         };
       }
     });
@@ -173,14 +197,23 @@ export const userSlice = createSlice({
     builder.addCase(register.fulfilled, (state, action) => {
       state.isLoading = false;
       state.error = undefined;
-      // Type guard to check if payload has customer field (from login response)
-      if (action.payload && 'customer' in action.payload && action.payload.customer) {
+      const payload = action.payload as any;
+
+      // Check if payload is IProfileAccount (from login->getUserInfo)
+      if (payload?.customerId) {
+        state.profile = payload;
+      }
+      // Check if payload is IResponseData (fallback with customer field)
+      else if (payload?.customer) {
         state.profile = {
-          customerId: action.payload.customer.customerId,
-          name: action.payload.customer.name,
-          email: action.payload.customer.email,
-          phone: action.payload.customer.phone,
-          customerType: action.payload.customer.customerType,
+          customerId: payload.customer.customerId,
+          name: payload.customer.name,
+          email: payload.customer.email,
+          phone: payload.customer.phone,
+          gender: payload.customer.gender,
+          dateOfBirth: payload.customer.dateOfBirth,
+          address: payload.customer.address,
+          customerType: payload.customer.customerType,
         };
       }
     });

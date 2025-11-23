@@ -1,6 +1,8 @@
 import {
   type ICustomerRegisterRequest,
   type ICustomerRegisterResponse,
+  type ICustomerUpdateProfileRequest,
+  type ICustomerUpdateProfileResponse,
   type ILoginRequest,
   type ILoginResponse,
 } from '@/dtos';
@@ -20,7 +22,16 @@ export const authApi = {
 
   register: async (body: ICustomerRegisterRequest) => {
     const response = await apiService.post<ICustomerRegisterResponse>(
-      `${BASE_ENDPOINT}/customer/register`,
+      `/customers/register`,
+      body,
+    );
+
+    return response;
+  },
+
+  updateProfile: async (body: ICustomerUpdateProfileRequest) => {
+    const response = await apiService.put<ICustomerUpdateProfileResponse>(
+      `/customers/my-profile`,
       body,
     );
 

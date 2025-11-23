@@ -1,14 +1,15 @@
 import type { IStructuredOrderData } from '@/dtos';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 interface OrderCardProps {
   item: IStructuredOrderData;
 }
 
-const getStatusColor = (status: string): { bg: string; text: string; icon: string } => {
+const getStatusColor = (
+  status: string,
+): { bg: string; text: string; icon: string } => {
   switch (status.toLowerCase()) {
     case 'chưa thanh toán':
       return { bg: '#fed7aa', text: '#92400e', icon: 'schedule' };
@@ -60,7 +61,9 @@ export function OrderCard({ item }: OrderCardProps) {
         {/* Header: Mã đơn & Trạng thái */}
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
-            <Text className="text-[12px] text-zinc-500 mb-0.5">Mã đơn hàng</Text>
+            <Text className="text-[12px] text-zinc-500 mb-0.5">
+              Mã đơn hàng
+            </Text>
             <Text className="text-[14px] font-semibold text-zinc-900">
               {item.order_code}
             </Text>
@@ -69,7 +72,11 @@ export function OrderCard({ item }: OrderCardProps) {
             className="px-3 py-1.5 rounded-full flex-row items-center gap-1"
             style={{ backgroundColor: statusInfo.bg }}
           >
-            <MaterialIcons name={statusInfo.icon as any} size={14} color={statusInfo.text} />
+            <MaterialIcons
+              name={statusInfo.icon as any}
+              size={14}
+              color={statusInfo.text}
+            />
             <Text
               className="text-[12px] font-semibold"
               style={{ color: statusInfo.text }}
@@ -106,7 +113,12 @@ export function OrderCard({ item }: OrderCardProps) {
         {/* Địa chỉ giao hàng */}
         {item.delivery_address && (
           <View className="flex-row items-start gap-2 mb-3">
-            <MaterialIcons name="location-on" size={14} color="#6b7280" style={{ marginTop: 1 }} />
+            <MaterialIcons
+              name="location-on"
+              size={14}
+              color="#6b7280"
+              style={{ marginTop: 1 }}
+            />
             <Text className="flex-1 text-[11px] text-zinc-600">
               {item.delivery_address}
             </Text>

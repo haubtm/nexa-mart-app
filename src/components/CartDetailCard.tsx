@@ -1,6 +1,5 @@
 import type { IStructuredCartData } from '@/dtos';
 import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
 import { FlatList, Image, Text, View } from 'react-native';
 
 interface CartDetailCardProps {

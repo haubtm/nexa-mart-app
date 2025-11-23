@@ -1,6 +1,5 @@
 import type { IStructuredProductData } from '@/dtos';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 
 interface ProductCardProps {

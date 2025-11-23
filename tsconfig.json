@@ -5,6 +5,8 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "baseUrl": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "nativewind",
     "paths": {
       "@/*": [
         "src/*"

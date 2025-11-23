@@ -1,6 +1,5 @@
 import type { IStructuredPromotionData } from '@/dtos';
 import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
 import { Text, View } from 'react-native';
 
 interface PromotionCardProps {

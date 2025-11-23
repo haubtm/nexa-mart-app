@@ -41,3 +41,10 @@ export enum EPaymentProvider {
   PAYOS = 'PAYOS',
   BANK_TRANSFER = 'BANK_TRANSFER',
 }
+
+export enum EDivisionType {
+  CITY = 'thành phố trung ương',
+  PROVINCE = 'tỉnh',
+  WARD = 'phường',
+  COMMUNE = 'xã',
+}

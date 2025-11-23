@@ -7,6 +7,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import Toast from 'react-native-toast-message';
 import '../../global.css';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -79,8 +80,15 @@ export default function RootLayout() {
                 headerShown: false,
               }}
             />
+            <Stack.Screen
+              name="profile"
+              options={{
+                headerShown: false,
+              }}
+            />
           </Stack>
           <StatusBar style="auto" />
+          <Toast />
         </ThemeProvider>
       </ReactQueryProvider>
     </Provider>

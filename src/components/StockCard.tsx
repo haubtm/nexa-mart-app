@@ -1,13 +1,15 @@
 import type { IStructuredStockData } from '@/dtos';
 import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
 import { Text, View } from 'react-native';
 
 interface StockCardProps {
   item: IStructuredStockData;
 }
 
-const getStockStatus = (quantity: number, status: string): { color: string; icon: string } => {
+const getStockStatus = (
+  quantity: number,
+  status: string,
+): { color: string; icon: string } => {
   if (quantity === 0 || status.toLowerCase() === 'hết hàng') {
     return { color: '#991b1b', icon: 'close-circle' };
   }
@@ -47,7 +49,11 @@ export function StockCard({ item }: StockCardProps) {
           className="px-2.5 py-1.5 rounded-full flex-row items-center gap-1"
           style={{ backgroundColor: `${stockInfo.color}20` }}
         >
-          <MaterialIcons name={stockInfo.icon as any} size={14} color={stockInfo.color} />
+          <MaterialIcons
+            name={stockInfo.icon as any}
+            size={14}
+            color={stockInfo.color}
+          />
           <Text
             className="text-[11px] font-semibold"
             style={{ color: stockInfo.color }}
@@ -64,24 +70,25 @@ export function StockCard({ item }: StockCardProps) {
           <Text className="text-[16px] font-bold text-zinc-900">
             {item.quantity}
           </Text>
-          <Text className="text-[12px] text-zinc-600">
-            {item.unit}
-          </Text>
+          <Text className="text-[12px] text-zinc-600">{item.unit}</Text>
         </View>
       </View>
 
       {/* Trạng thái kho */}
       <View className="flex-row items-center gap-2 mb-2">
         <MaterialIcons name="inventory-2" size={14} color="#6b7280" />
-        <Text className="text-[12px] text-zinc-700">
-          {item.status}
-        </Text>
+        <Text className="text-[12px] text-zinc-700">{item.status}</Text>
       </View>
 
       {/* Vị trí kho */}
       {item.warehouse_location && (
         <View className="flex-row items-start gap-2 mb-2">
-          <MaterialIcons name="location-on" size={14} color="#6b7280" style={{ marginTop: 1 }} />
+          <MaterialIcons
+            name="location-on"
+            size={14}
+            color="#6b7280"
+            style={{ marginTop: 1 }}
+          />
           <Text className="flex-1 text-[12px] text-zinc-700">
             {item.warehouse_location}
           </Text>
@@ -91,7 +98,12 @@ export function StockCard({ item }: StockCardProps) {
       {/* Ghi chú */}
       {item.note && (
         <View className="flex-row items-start gap-2 pt-2 border-t border-zinc-100 mt-2">
-          <MaterialIcons name="note" size={14} color="#6b7280" style={{ marginTop: 1 }} />
+          <MaterialIcons
+            name="note"
+            size={14}
+            color="#6b7280"
+            style={{ marginTop: 1 }}
+          />
           <Text className="flex-1 text-[11px] text-zinc-600 italic">
             {item.note}
           </Text>
