@@ -88,7 +88,12 @@ export default function RootLayout() {
             />
           </Stack>
           <StatusBar style="auto" />
-          <Toast />
+          <Toast
+            position="top"
+            visibilityTime={3000}
+            autoHide={true}
+            topOffset={50}
+          />
         </ThemeProvider>
       </ReactQueryProvider>
     </Provider>

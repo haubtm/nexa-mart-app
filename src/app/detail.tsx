@@ -1,6 +1,7 @@
 // app/detail.tsx
 import { queryClient } from '@/providers/ReactQuery';
 import { cartKeys, useCartCreate, useProductUnitById } from '@/react-query';
+import { showToast } from '@/lib/utils/toast';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
@@ -42,9 +43,17 @@ export default function DetailSheetScreen() {
 
   const handleAdd = async () => {
     if (disabledMain) return;
-    await createCart({ productUnitId: id, quantity: qty });
-    await queryClient.invalidateQueries({ queryKey: cartKeys.all });
-    router.back();
+    try {
+      await createCart({ productUnitId: id, quantity: qty });
+      await queryClient.invalidateQueries({ queryKey: cartKeys.all });
+      showToast.success(
+        'Thêm thành công',
+        `${name} (${qty}x) đã được thêm vào giỏ hàng`
+      );
+      router.back();
+    } catch (error) {
+      showToast.error('Lỗi', 'Không thể thêm sản phẩm vào giỏ hàng');
+    }
   };
 
   const close = () => router.back();

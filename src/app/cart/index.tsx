@@ -14,7 +14,9 @@ import {
   useOrderById,
   useOrderCreate,
 } from '@/react-query';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAppSelector } from '@/redux';
+import { showToast } from '@/lib/utils/toast';
+import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -80,8 +82,22 @@ function getPaymentDeepLink(
   }
 }
 
+// Helper function to format address string by removing codes
+const formatAddressForDisplay = (addressStr?: string): string => {
+  if (!addressStr) return '';
+
+  // Format: "houseNumber, wardCode, wardName, provinceCode, provinceName"
+  const parts = addressStr.split(',').map(p => p.trim());
+
+  if (parts.length !== 5) return addressStr;
+
+  const [houseNumber, , wardName, , provinceName] = parts;
+  return `${houseNumber}, ${wardName}, ${provinceName}`;
+};
+
 export default function CartScreen() {
   const router = useRouter();
+  const { profile } = useAppSelector((state) => state.user);
 
   const { data, isPending } = useCartList();
   const { mutateAsync: updateCart, isPending: updating } = useCartUpdate();
@@ -97,8 +113,16 @@ export default function CartScreen() {
   const [paymentMethod, setPaymentMethod] = useState<EPaymentMethod>(
     EPaymentMethod.ONLINE,
   );
-  const [deliveryAddress, setDeliveryAddress] = useState<string>('Ho Chi Minh');
+  const [deliveryAddress, setDeliveryAddress] = useState<string>('');
   const [orderNote, setOrderNote] = useState<string>('');
+
+  // Set delivery address từ profile khi component mount
+  useEffect(() => {
+    if (profile?.address) {
+      const formattedAddress = formatAddressForDisplay(profile.address);
+      setDeliveryAddress(formattedAddress);
+    }
+  }, [profile?.address]);
 
   const [showPayModal, setShowPayModal] = useState(false);
   const [payInfo, setPayInfo] = useState<{
@@ -152,9 +176,14 @@ export default function CartScreen() {
 
   const inc = async (id: number, cur: number, stock: number) => {
     const next = Math.min(cur + 1, stock);
+    if (next === cur) {
+      showToast.info('Thông báo', 'Đã đạt số lượng tối đa');
+      return;
+    }
     try {
       setUpdatingId(id);
       await updateCart({ productUnitId: id, quantity: next });
+      showToast.success('Cập nhật', `Số lượng đã tăng lên ${next}`);
     } finally {
       await queryClient.invalidateQueries({ queryKey: cartKeys.all });
       setUpdatingId(null);
@@ -166,6 +195,7 @@ export default function CartScreen() {
     try {
       setUpdatingId(id);
       await updateCart({ productUnitId: id, quantity: next });
+      showToast.success('Cập nhật', `Số lượng đã giảm xuống ${next}`);
     } finally {
       await queryClient.invalidateQueries({ queryKey: cartKeys.all });
       setUpdatingId(null);
@@ -176,6 +206,7 @@ export default function CartScreen() {
     if (cur <= 1) {
       await deleteLine({ productUnitId: id });
       await queryClient.invalidateQueries({ queryKey: cartKeys.all });
+      showToast.success('Xóa thành công', 'Sản phẩm đã được xóa khỏi giỏ hàng');
       return;
     }
     await dec(id, cur);
@@ -184,6 +215,7 @@ export default function CartScreen() {
   const remove = async (id: number) => {
     await deleteLine({ productUnitId: id });
     await queryClient.invalidateQueries({ queryKey: cartKeys.all });
+    showToast.success('Xóa thành công', 'Sản phẩm đã được xóa khỏi giỏ hàng');
   };
 
   const removeAll = async () => {
@@ -195,6 +227,7 @@ export default function CartScreen() {
         onPress: async () => {
           await clearAll();
           await queryClient.invalidateQueries({ queryKey: cartKeys.all });
+          showToast.success('Xóa thành công', 'Tất cả sản phẩm đã được xóa khỏi giỏ hàng');
         },
       },
     ]);
@@ -432,12 +465,23 @@ export default function CartScreen() {
               {deliveryType === EDeliveryType.HOME_DELIVERY && (
                 <View className="mt-3">
                   <Text className="mb-1 text-zinc-700">Địa chỉ giao hàng</Text>
-                  <TextInput
-                    value={deliveryAddress}
-                    onChangeText={setDeliveryAddress}
-                    placeholder="VD: 347/32 Bùi Đình Túy, P.14, Q.BT, TP.HCM"
-                    className="h-11 px-3 rounded-xl bg-zinc-100"
-                  />
+                  <View className="flex-row items-center">
+                    <View className="flex-1 flex-row items-center bg-zinc-100 rounded-xl px-3 py-3">
+                      <Ionicons name="location-outline" size={18} color="#dc2626" />
+                      <Text className="ml-2 text-zinc-800 flex-1">
+                        {deliveryAddress || 'Chưa cập nhật địa chỉ'}
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => router.push('/profile/edit')}
+                      className="ml-2 w-11 h-11 rounded-xl bg-red-50 items-center justify-center"
+                    >
+                      <Ionicons name="pencil-outline" size={18} color="#dc2626" />
+                    </Pressable>
+                  </View>
+                  <Text className="mt-2 text-[12px] text-zinc-500">
+                    Địa chỉ được lấy từ hồ sơ của bạn. Nhấn nút chỉnh sửa để thay đổi.
+                  </Text>
                 </View>
               )}
             </View>
