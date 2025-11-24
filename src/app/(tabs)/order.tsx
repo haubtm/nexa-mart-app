@@ -81,7 +81,7 @@ const SegButton = ({
   </Pressable>
 );
 
-const STATUS_TABS: Array<{ key: 'ALL' | EOrderStatus; label: string }> = [
+const STATUS_TABS: { key: 'ALL' | EOrderStatus; label: string }[] = [
   { key: 'ALL', label: 'Tất cả' },
   { key: EOrderStatus.UNPAID, label: 'Chưa thanh toán' },
   { key: EOrderStatus.PENDING, label: 'Đang xử lý' },

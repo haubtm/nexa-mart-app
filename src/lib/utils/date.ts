@@ -8,7 +8,9 @@ dayjs.extend(timezone);
 
 const VN_TZ = 'Asia/Ho_Chi_Minh';
 
-export const isValidDate = (date: string | number | Date | null | undefined) => {
+export const isValidDate = (
+  date: string | number | Date | null | undefined,
+) => {
   if (!date || !dayjs(date).isValid()) {
     return false;
   }

@@ -61,7 +61,10 @@ export const login = createAsyncThunk(
 
         // Verify token was saved
         const savedToken = await AsyncStorage.getItem('token');
-        console.log('[Login] Token verification:', savedToken ? 'EXISTS' : 'NULL');
+        console.log(
+          '[Login] Token verification:',
+          savedToken ? 'EXISTS' : 'NULL',
+        );
 
         // Get full user profile info
         console.log('[Login] Fetching full user profile...');
@@ -70,7 +73,9 @@ export const login = createAsyncThunk(
           console.log('[Login] Full profile fetched successfully');
           return userInfoResponse;
         } catch (userInfoError) {
-          console.log('[Login] Failed to fetch user info, using login response data');
+          console.log(
+            '[Login] Failed to fetch user info, using login response data',
+          );
           return response?.data;
         }
       }
@@ -86,10 +91,7 @@ export const login = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'user/register',
-  async (
-    userData: ICustomerRegisterRequest,
-    { rejectWithValue, dispatch },
-  ) => {
+  async (userData: ICustomerRegisterRequest, { rejectWithValue, dispatch }) => {
     try {
       const response = await authApi.register(userData);
       // After successful registration, auto-login

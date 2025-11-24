@@ -28,14 +28,14 @@ interface IProductByIdResponseData {
   };
   unitCount: number;
   imageCount: number;
-  productUnits: Array<{
+  productUnits: {
     id: number;
     barcode: string;
     conversionValue: number;
     isBaseUnit: boolean;
     isActive: boolean;
     unitName: string;
-  }>;
+  }[];
 }
 
 export interface IProductByIdRequest {
@@ -112,7 +112,7 @@ export interface IProductByBarcodeResponse
     };
     unitCount: number;
     imageCount: number;
-    productUnits: Array<{
+    productUnits: {
       id: number;
       barcode: string;
       conversionValue: number;
@@ -120,5 +120,5 @@ export interface IProductByBarcodeResponse
       isActive: boolean;
       unitName: string;
       isFavorite: boolean | null;
-    }>;
+    }[];
   }> {}

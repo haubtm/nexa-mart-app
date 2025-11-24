@@ -31,11 +31,13 @@ export interface IStructuredOrderData {
   delivery_method: string | null;
   delivery_address: string | null;
   item_count: number | null;
-  items: {
-    product_name: string;
-    quantity: number;
-    price: number;
-  }[] | null;
+  items:
+    | {
+        product_name: string;
+        quantity: number;
+        price: number;
+      }[]
+    | null;
 }
 
 export interface IStructuredPromotionData {

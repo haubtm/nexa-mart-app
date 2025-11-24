@@ -1,9 +1,8 @@
+import { defineConfig } from 'eslint/config';
 import prettierPlugin from 'eslint-plugin-prettier';
+import expoConfig from 'eslint-config-expo/flat.js';
 
-const { defineConfig } = require('eslint/config');
-const expoConfig = require('eslint-config-expo/flat');
-
-module.exports = defineConfig([
+export default defineConfig([
   expoConfig,
   {
     ignores: ['dist/*'],

@@ -93,86 +93,86 @@ export default function LoginScreen() {
           extraHeight={150}
         >
           <View className="flex-1 pt-20 pb-10">
-              {/* Header */}
-              <Animated.View entering={FadeInDown.delay(200).duration(600)}>
-                <AuthHeader
-                  title="Chào mừng trở lại"
-                  subtitle="Đăng nhập để trải nghiệm mua sắm cao cấp tại NexaMart"
-                />
-              </Animated.View>
+            {/* Header */}
+            <Animated.View entering={FadeInDown.delay(200).duration(600)}>
+              <AuthHeader
+                title="Chào mừng trở lại"
+                subtitle="Đăng nhập để trải nghiệm mua sắm cao cấp tại NexaMart"
+              />
+            </Animated.View>
 
-              {/* Form */}
-              <Animated.View
-                entering={FadeInUp.delay(400).duration(600)}
-                className="mt-8"
+            {/* Form */}
+            <Animated.View
+              entering={FadeInUp.delay(400).duration(600)}
+              className="mt-8"
+            >
+              {/* Email/Phone Input */}
+              <LuxuryInput
+                label="Email hoặc Số điện thoại"
+                placeholder="Nhập email hoặc số điện thoại"
+                value={emailOrPhone}
+                onChangeText={(text) => {
+                  setEmailOrPhone(text);
+                  setEmailError('');
+                }}
+                leftIcon="mail-outline"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={emailError}
+              />
+
+              {/* Password Input */}
+              <LuxuryInput
+                label="Mật khẩu"
+                placeholder="Nhập mật khẩu"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setPasswordError('');
+                }}
+                leftIcon="lock-closed-outline"
+                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowPassword(!showPassword)}
+                secureTextEntry={!showPassword}
+                error={passwordError}
+              />
+
+              {/* Forgot Password */}
+              <Pressable
+                onPress={handleForgotPassword}
+                className="mb-8 items-end"
               >
-                {/* Email/Phone Input */}
-                <LuxuryInput
-                  label="Email hoặc Số điện thoại"
-                  placeholder="Nhập email hoặc số điện thoại"
-                  value={emailOrPhone}
-                  onChangeText={(text) => {
-                    setEmailOrPhone(text);
-                    setEmailError('');
-                  }}
-                  leftIcon="mail-outline"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  error={emailError}
-                />
+                <Text className="text-red-600 text-sm font-medium">
+                  Quên mật khẩu?
+                </Text>
+              </Pressable>
 
-                {/* Password Input */}
-                <LuxuryInput
-                  label="Mật khẩu"
-                  placeholder="Nhập mật khẩu"
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    setPasswordError('');
-                  }}
-                  leftIcon="lock-closed-outline"
-                  rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  onRightIconPress={() => setShowPassword(!showPassword)}
-                  secureTextEntry={!showPassword}
-                  error={passwordError}
-                />
+              {/* Login Button */}
+              <LuxuryButton
+                title="Đăng nhập"
+                onPress={handleLogin}
+                isLoading={isLoading}
+                variant="primary"
+              />
 
-                {/* Forgot Password */}
-                <Pressable
-                  onPress={handleForgotPassword}
-                  className="mb-8 items-end"
-                >
-                  <Text className="text-red-600 text-sm font-medium">
-                    Quên mật khẩu?
+              {/* Divider */}
+              <View className="flex-row items-center my-8">
+                <View className="flex-1 h-px bg-slate-300" />
+                <Text className="text-slate-500 mx-4 text-sm">hoặc</Text>
+                <View className="flex-1 h-px bg-slate-300" />
+              </View>
+
+              {/* Register Link */}
+              <View className="flex-row justify-center items-center">
+                <Text className="text-slate-600 text-base">
+                  Chưa có tài khoản?{' '}
+                </Text>
+                <Pressable onPress={() => router.push('/auth/register')}>
+                  <Text className="text-red-600 text-base font-semibold">
+                    Đăng ký ngay
                   </Text>
                 </Pressable>
-
-                {/* Login Button */}
-                <LuxuryButton
-                  title="Đăng nhập"
-                  onPress={handleLogin}
-                  isLoading={isLoading}
-                  variant="primary"
-                />
-
-                {/* Divider */}
-                <View className="flex-row items-center my-8">
-                  <View className="flex-1 h-px bg-slate-300" />
-                  <Text className="text-slate-500 mx-4 text-sm">hoặc</Text>
-                  <View className="flex-1 h-px bg-slate-300" />
-                </View>
-
-                {/* Register Link */}
-                <View className="flex-row justify-center items-center">
-                  <Text className="text-slate-600 text-base">
-                    Chưa có tài khoản?{' '}
-                  </Text>
-                  <Pressable onPress={() => router.push('/auth/register')}>
-                    <Text className="text-red-600 text-base font-semibold">
-                      Đăng ký ngay
-                    </Text>
-                  </Pressable>
-                </View>
+              </View>
             </Animated.View>
           </View>
         </KeyboardAwareScrollView>

@@ -36,7 +36,7 @@ export const extractBarcodeFromUrl = (imageUrl: string): string | null => {
  * For now, we'll use a simple regex pattern matcher
  */
 export const extractBarcodeFromImage = async (
-  imagePath: string
+  imagePath: string,
 ): Promise<string | null> => {
   try {
     // If it's a URL, extract from URL pattern

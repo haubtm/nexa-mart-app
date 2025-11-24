@@ -8,7 +8,6 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Feather } from '@expo/vector-icons';
 
 export default function TabLayout() {
-
   return (
     <Tabs
       screenOptions={{

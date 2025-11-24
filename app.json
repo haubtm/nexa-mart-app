@@ -16,7 +16,9 @@
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.nexamartapp",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",

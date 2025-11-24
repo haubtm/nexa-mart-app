@@ -21,15 +21,18 @@ import dayjs from 'dayjs';
 import type { IAddressDetail } from '@/dtos';
 
 // Helper function to parse address string to IAddressDetail
-const parseAddressString = (addressStr?: string): IAddressDetail | undefined => {
+const parseAddressString = (
+  addressStr?: string,
+): IAddressDetail | undefined => {
   if (!addressStr) return undefined;
 
   // Format: "houseNumber, wardCode, wardName, provinceCode, provinceName"
-  const parts = addressStr.split(',').map(p => p.trim());
+  const parts = addressStr.split(',').map((p) => p.trim());
 
   if (parts.length !== 5) return undefined;
 
-  const [houseNumber, wardCodeStr, wardName, provinceCodeStr, provinceName] = parts;
+  const [houseNumber, wardCodeStr, wardName, provinceCodeStr, provinceName] =
+    parts;
   const wardCode = parseInt(wardCodeStr, 10);
   const provinceCode = parseInt(provinceCodeStr, 10);
 
@@ -145,9 +148,8 @@ export default function EditProfileScreen() {
               phone: formData.phone.trim(),
               gender: formData.gender,
               dateOfBirth: formData.dateOfBirth,
-              address:
-                formData.addressDetail ?
-                  `${formData.addressDetail.houseNumber}, ${formData.addressDetail.wardCode}, ${formData.addressDetail.wardName}, ${formData.addressDetail.provinceCode}, ${formData.addressDetail.provinceName}`
+              address: formData.addressDetail
+                ? `${formData.addressDetail.houseNumber}, ${formData.addressDetail.wardCode}, ${formData.addressDetail.wardName}, ${formData.addressDetail.provinceCode}, ${formData.addressDetail.provinceName}`
                 : undefined,
             }),
           );
@@ -206,7 +208,6 @@ export default function EditProfileScreen() {
           extraHeight={150}
         >
           <View className="pt-6 pb-10">
-
             {/* Form */}
             <Animated.View
               entering={FadeInUp.delay(400).duration(600)}

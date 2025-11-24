@@ -48,7 +48,7 @@ export default function DetailSheetScreen() {
       await queryClient.invalidateQueries({ queryKey: cartKeys.all });
       showToast.success(
         'Thêm thành công',
-        `${name} (${qty}x) đã được thêm vào giỏ hàng`
+        `${name} (${qty}x) đã được thêm vào giỏ hàng`,
       );
       router.back();
     } catch (error) {

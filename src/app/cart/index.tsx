@@ -87,7 +87,7 @@ const formatAddressForDisplay = (addressStr?: string): string => {
   if (!addressStr) return '';
 
   // Format: "houseNumber, wardCode, wardName, provinceCode, provinceName"
-  const parts = addressStr.split(',').map(p => p.trim());
+  const parts = addressStr.split(',').map((p) => p.trim());
 
   if (parts.length !== 5) return addressStr;
 
@@ -227,7 +227,10 @@ export default function CartScreen() {
         onPress: async () => {
           await clearAll();
           await queryClient.invalidateQueries({ queryKey: cartKeys.all });
-          showToast.success('Xóa thành công', 'Tất cả sản phẩm đã được xóa khỏi giỏ hàng');
+          showToast.success(
+            'Xóa thành công',
+            'Tất cả sản phẩm đã được xóa khỏi giỏ hàng',
+          );
         },
       },
     ]);
@@ -467,7 +470,11 @@ export default function CartScreen() {
                   <Text className="mb-1 text-zinc-700">Địa chỉ giao hàng</Text>
                   <View className="flex-row items-center">
                     <View className="flex-1 flex-row items-center bg-zinc-100 rounded-xl px-3 py-3">
-                      <Ionicons name="location-outline" size={18} color="#dc2626" />
+                      <Ionicons
+                        name="location-outline"
+                        size={18}
+                        color="#dc2626"
+                      />
                       <Text className="ml-2 text-zinc-800 flex-1">
                         {deliveryAddress || 'Chưa cập nhật địa chỉ'}
                       </Text>
@@ -476,11 +483,16 @@ export default function CartScreen() {
                       onPress={() => router.push('/profile/edit')}
                       className="ml-2 w-11 h-11 rounded-xl bg-red-50 items-center justify-center"
                     >
-                      <Ionicons name="pencil-outline" size={18} color="#dc2626" />
+                      <Ionicons
+                        name="pencil-outline"
+                        size={18}
+                        color="#dc2626"
+                      />
                     </Pressable>
                   </View>
                   <Text className="mt-2 text-[12px] text-zinc-500">
-                    Địa chỉ được lấy từ hồ sơ của bạn. Nhấn nút chỉnh sửa để thay đổi.
+                    Địa chỉ được lấy từ hồ sơ của bạn. Nhấn nút chỉnh sửa để
+                    thay đổi.
                   </Text>
                 </View>
               )}

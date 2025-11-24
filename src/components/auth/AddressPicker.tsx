@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, Modal, FlatList, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  Modal,
+  FlatList,
+  TextInput,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   useAddressProvinceList,
@@ -20,7 +27,8 @@ export function AddressPicker({ value, onChange, error }: AddressPickerProps) {
   const [showWardModal, setShowWardModal] = useState(false);
   const [houseNumber, setHouseNumber] = useState(value?.houseNumber || '');
 
-  const [selectedProvince, setSelectedProvince] = useState<IProvinceItem | null>(null);
+  const [selectedProvince, setSelectedProvince] =
+    useState<IProvinceItem | null>(null);
   const [selectedWard, setSelectedWard] = useState<IWardItem | null>(null);
 
   // Fetch province/ward details if value is provided
@@ -107,7 +115,13 @@ export function AddressPicker({ value, onChange, error }: AddressPickerProps) {
           onPress={() => setShowProvinceModal(true)}
           className="border border-gray-300 rounded-lg px-3 py-3 flex-row justify-between items-center"
         >
-          <Text className={selectedProvince ? 'text-black text-base' : 'text-gray-400 text-base'}>
+          <Text
+            className={
+              selectedProvince
+                ? 'text-black text-base'
+                : 'text-gray-400 text-base'
+            }
+          >
             {selectedProvince?.name || 'Chọn tỉnh/thành phố'}
           </Text>
           <Ionicons name="chevron-down" size={20} color="#666" />
@@ -133,9 +147,14 @@ export function AddressPicker({ value, onChange, error }: AddressPickerProps) {
                   : 'text-gray-300'
             }`}
           >
-            {selectedWard?.name || (selectedProvince ? 'Chọn phường/xã' : 'Chọn tỉnh trước')}
+            {selectedWard?.name ||
+              (selectedProvince ? 'Chọn phường/xã' : 'Chọn tỉnh trước')}
           </Text>
-          <Ionicons name="chevron-down" size={20} color={selectedProvince ? '#666' : '#ccc'} />
+          <Ionicons
+            name="chevron-down"
+            size={20}
+            color={selectedProvince ? '#666' : '#ccc'}
+          />
         </Pressable>
       </View>
 

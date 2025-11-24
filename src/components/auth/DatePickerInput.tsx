@@ -54,7 +54,10 @@ export function DatePickerInput({
     return new Date(year, month + 1, 0).getDate();
   };
 
-  const daysInCurrentMonth = getDaysInMonth(tempDate.getFullYear(), tempDate.getMonth());
+  const daysInCurrentMonth = getDaysInMonth(
+    tempDate.getFullYear(),
+    tempDate.getMonth(),
+  );
   const days = Array.from({ length: daysInCurrentMonth }, (_, i) => i + 1);
 
   const handleDateConfirm = () => {
@@ -63,7 +66,9 @@ export function DatePickerInput({
     setShowPicker(false);
   };
 
-  const displayDate = value ? dayjs(value).format('DD/MM/YYYY') : 'Chọn ngày sinh';
+  const displayDate = value
+    ? dayjs(value).format('DD/MM/YYYY')
+    : 'Chọn ngày sinh';
 
   return (
     <View className="mb-4">
@@ -72,7 +77,13 @@ export function DatePickerInput({
         onPress={() => setShowPicker(true)}
         className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center bg-white"
       >
-        <Text className={value ? 'text-gray-800 text-base font-medium' : 'text-gray-400 text-base'}>
+        <Text
+          className={
+            value
+              ? 'text-gray-800 text-base font-medium'
+              : 'text-gray-400 text-base'
+          }
+        >
           {displayDate}
         </Text>
         <Ionicons name="calendar-outline" size={20} color="#6B7280" />
@@ -94,16 +105,34 @@ export function DatePickerInput({
             {/* Date Picker */}
             <View className="flex-row h-56 px-4 py-4">
               {/* Days */}
-              <ScrollView className="flex-1" scrollEnabled showsVerticalScrollIndicator={false}>
+              <ScrollView
+                className="flex-1"
+                scrollEnabled
+                showsVerticalScrollIndicator={false}
+              >
                 {days.map((day) => (
                   <Pressable
                     key={day}
-                    onPress={() => setTempDate(new Date(tempDate.getFullYear(), tempDate.getMonth(), day))}
+                    onPress={() =>
+                      setTempDate(
+                        new Date(
+                          tempDate.getFullYear(),
+                          tempDate.getMonth(),
+                          day,
+                        ),
+                      )
+                    }
                     className={`py-3 px-2 rounded-lg items-center ${
                       tempDate.getDate() === day ? 'bg-red-500' : 'bg-white'
                     }`}
                   >
-                    <Text className={tempDate.getDate() === day ? 'text-white font-bold' : 'text-gray-800'}>
+                    <Text
+                      className={
+                        tempDate.getDate() === day
+                          ? 'text-white font-bold'
+                          : 'text-gray-800'
+                      }
+                    >
                       {String(day).padStart(2, '0')}
                     </Text>
                   </Pressable>
@@ -111,16 +140,32 @@ export function DatePickerInput({
               </ScrollView>
 
               {/* Months */}
-              <ScrollView className="flex-1 mx-2" scrollEnabled showsVerticalScrollIndicator={false}>
+              <ScrollView
+                className="flex-1 mx-2"
+                scrollEnabled
+                showsVerticalScrollIndicator={false}
+              >
                 {months.map((month) => (
                   <Pressable
                     key={month.value}
-                    onPress={() => setTempDate(new Date(tempDate.getFullYear(), month.value, 1))}
+                    onPress={() =>
+                      setTempDate(
+                        new Date(tempDate.getFullYear(), month.value, 1),
+                      )
+                    }
                     className={`py-3 px-2 rounded-lg items-center ${
-                      tempDate.getMonth() === month.value ? 'bg-red-500' : 'bg-white'
+                      tempDate.getMonth() === month.value
+                        ? 'bg-red-500'
+                        : 'bg-white'
                     }`}
                   >
-                    <Text className={tempDate.getMonth() === month.value ? 'text-white font-bold text-sm' : 'text-gray-800 text-sm'}>
+                    <Text
+                      className={
+                        tempDate.getMonth() === month.value
+                          ? 'text-white font-bold text-sm'
+                          : 'text-gray-800 text-sm'
+                      }
+                    >
                       {month.label}
                     </Text>
                   </Pressable>
@@ -128,16 +173,30 @@ export function DatePickerInput({
               </ScrollView>
 
               {/* Years */}
-              <ScrollView className="flex-1" scrollEnabled showsVerticalScrollIndicator={false}>
+              <ScrollView
+                className="flex-1"
+                scrollEnabled
+                showsVerticalScrollIndicator={false}
+              >
                 {years.map((year) => (
                   <Pressable
                     key={year}
-                    onPress={() => setTempDate(new Date(year, tempDate.getMonth(), 1))}
+                    onPress={() =>
+                      setTempDate(new Date(year, tempDate.getMonth(), 1))
+                    }
                     className={`py-3 px-2 rounded-lg items-center ${
-                      tempDate.getFullYear() === year ? 'bg-red-500' : 'bg-white'
+                      tempDate.getFullYear() === year
+                        ? 'bg-red-500'
+                        : 'bg-white'
                     }`}
                   >
-                    <Text className={tempDate.getFullYear() === year ? 'text-white font-bold' : 'text-gray-800'}>
+                    <Text
+                      className={
+                        tempDate.getFullYear() === year
+                          ? 'text-white font-bold'
+                          : 'text-gray-800'
+                      }
+                    >
                       {year}
                     </Text>
                   </Pressable>

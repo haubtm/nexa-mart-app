@@ -17,7 +17,7 @@ const formatAddressForDisplay = (addressStr?: string): string => {
   if (!addressStr) return '';
 
   // Format: "houseNumber, wardCode, wardName, provinceCode, provinceName"
-  const parts = addressStr.split(',').map(p => p.trim());
+  const parts = addressStr.split(',').map((p) => p.trim());
 
   if (parts.length !== 5) return addressStr;
 
@@ -98,7 +98,6 @@ export default function ProfileScreen() {
 
         {/* Content */}
         <View className="px-4 py-6">
-
           {/* Avatar & Name */}
           <View className="items-center mb-8">
             <LinearGradient
