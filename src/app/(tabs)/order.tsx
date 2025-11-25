@@ -83,7 +83,6 @@ const SegButton = ({
 
 const STATUS_TABS: { key: 'ALL' | EOrderStatus; label: string }[] = [
   { key: 'ALL', label: 'Tất cả' },
-  { key: EOrderStatus.UNPAID, label: 'Chưa thanh toán' },
   { key: EOrderStatus.PENDING, label: 'Đang xử lý' },
   { key: EOrderStatus.PREPARED, label: 'Đã chuẩn bị' },
   { key: EOrderStatus.SHIPPING, label: 'Đang giao' },

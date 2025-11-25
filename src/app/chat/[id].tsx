@@ -244,7 +244,7 @@ export default function ChatRoomScreen() {
         <KeyboardAvoidingView
           className="flex-1"
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 100}
         >
           <FlatList<IChatMessage>
             ref={listRef}
