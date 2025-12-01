@@ -9,5 +9,6 @@ export * from './order';
 export * from './price';
 export * from './product';
 export * from './product-image';
+export * from './store';
 export * from './warehouse';
 

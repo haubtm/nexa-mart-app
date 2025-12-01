@@ -1,35 +1,38 @@
+import { CheckoutAddressPicker } from '@/components/CheckoutAddressPicker';
+import { CheckoutStorePicker } from '@/components/CheckoutStorePicker';
+import type { IMyAddress, IStore } from '@/dtos';
 import {
-  EDeliveryType,
-  EOrderStatus,
-  EPaymentMethod,
-  EPaymentProvider,
+    EDeliveryType,
+    EOrderStatus,
+    EPaymentMethod,
+    EPaymentProvider,
 } from '@/lib';
+import { showToast } from '@/lib/utils/toast';
 import { queryClient } from '@/providers/ReactQuery';
 import {
-  cartKeys,
-  useCartDelete,
-  useCartDeleteProduct,
-  useCartList,
-  useCartUpdate,
-  useOrderById,
-  useOrderCreate,
+    cartKeys,
+    useCartDelete,
+    useCartDeleteProduct,
+    useCartList,
+    useCartUpdate,
+    useOrderById,
+    useOrderCreate,
 } from '@/react-query';
 import { useAppSelector } from '@/redux';
-import { showToast } from '@/lib/utils/toast';
-import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  Linking,
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    Linking,
+    Modal,
+    Pressable,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
@@ -113,16 +116,9 @@ export default function CartScreen() {
   const [paymentMethod, setPaymentMethod] = useState<EPaymentMethod>(
     EPaymentMethod.ONLINE,
   );
-  const [deliveryAddress, setDeliveryAddress] = useState<string>('');
+  const [selectedAddress, setSelectedAddress] = useState<IMyAddress | null>(null);
+  const [selectedStore, setSelectedStore] = useState<IStore | null>(null);
   const [orderNote, setOrderNote] = useState<string>('');
-
-  // Set delivery address từ profile khi component mount
-  useEffect(() => {
-    if (profile?.address) {
-      const formattedAddress = formatAddressForDisplay(profile.address);
-      setDeliveryAddress(formattedAddress);
-    }
-  }, [profile?.address]);
 
   const [showPayModal, setShowPayModal] = useState(false);
   const [payInfo, setPayInfo] = useState<{
@@ -467,33 +463,19 @@ export default function CartScreen() {
 
               {deliveryType === EDeliveryType.HOME_DELIVERY && (
                 <View className="mt-3">
-                  <Text className="mb-1 text-zinc-700">Địa chỉ giao hàng</Text>
-                  <View className="flex-row items-center">
-                    <View className="flex-1 flex-row items-center bg-zinc-100 rounded-xl px-3 py-3">
-                      <Ionicons
-                        name="location-outline"
-                        size={18}
-                        color="#dc2626"
-                      />
-                      <Text className="ml-2 text-zinc-800 flex-1">
-                        {deliveryAddress || 'Chưa cập nhật địa chỉ'}
-                      </Text>
-                    </View>
-                    <Pressable
-                      onPress={() => router.push('/profile/edit')}
-                      className="ml-2 w-11 h-11 rounded-xl bg-red-50 items-center justify-center"
-                    >
-                      <Ionicons
-                        name="pencil-outline"
-                        size={18}
-                        color="#dc2626"
-                      />
-                    </Pressable>
-                  </View>
-                  <Text className="mt-2 text-[12px] text-zinc-500">
-                    Địa chỉ được lấy từ hồ sơ của bạn. Nhấn nút chỉnh sửa để
-                    thay đổi.
-                  </Text>
+                  <CheckoutAddressPicker
+                    selectedAddressId={selectedAddress?.addressId}
+                    onAddressChange={setSelectedAddress}
+                  />
+                </View>
+              )}
+
+              {deliveryType === EDeliveryType.PICKUP_AT_STORE && (
+                <View className="mt-3">
+                  <CheckoutStorePicker
+                    selectedStoreId={selectedStore?.storeId}
+                    onStoreChange={setSelectedStore}
+                  />
                 </View>
               )}
             </View>
@@ -551,17 +533,31 @@ export default function CartScreen() {
               )}
 
               <Pressable
-                disabled={creatingOrder}
+                disabled={
+                  creatingOrder ||
+                  (deliveryType === EDeliveryType.HOME_DELIVERY && !selectedAddress) ||
+                  (deliveryType === EDeliveryType.PICKUP_AT_STORE && !selectedStore)
+                }
                 onPress={async () => {
+                  if (deliveryType === EDeliveryType.HOME_DELIVERY && !selectedAddress) {
+                    Alert.alert('Thông báo', 'Vui lòng chọn địa chỉ giao hàng');
+                    return;
+                  }
+                  if (deliveryType === EDeliveryType.PICKUP_AT_STORE && !selectedStore) {
+                    Alert.alert('Thông báo', 'Vui lòng chọn cửa hàng nhận hàng');
+                    return;
+                  }
                   try {
                     const payload: any = {
                       deliveryType,
                       paymentMethod: EPaymentMethod.ONLINE,
                       orderNote,
                     };
-                    if (deliveryType === EDeliveryType.HOME_DELIVERY) {
-                      payload.deliveryAddress =
-                        deliveryAddress?.trim() || 'Ho Chi Minh';
+                    if (deliveryType === EDeliveryType.HOME_DELIVERY && selectedAddress) {
+                      payload.addressId = selectedAddress.addressId;
+                    }
+                    if (deliveryType === EDeliveryType.PICKUP_AT_STORE && selectedStore) {
+                      payload.storeId = selectedStore.storeId;
                     }
 
                     const res = await createOrder(payload);

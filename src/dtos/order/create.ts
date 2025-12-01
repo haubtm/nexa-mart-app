@@ -5,7 +5,8 @@ import { IOrderResponseData } from './common';
 export interface IOrderCreateRequest {
   deliveryType: EDeliveryType;
   paymentMethod: EPaymentMethod;
-  deliveryAddress?: string;
+  addressId?: number;
+  storeId?: number;
   orderNote?: string;
 }
 
