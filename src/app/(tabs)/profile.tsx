@@ -1,16 +1,16 @@
 import { logout, useAppDispatch, useAppSelector } from '@/redux';
 import { Ionicons } from '@expo/vector-icons';
+import dayjs from 'dayjs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import {
-  Alert,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
+    Alert,
+    Pressable,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    View,
 } from 'react-native';
-import dayjs from 'dayjs';
 
 // Helper function to format address string by removing codes
 const formatAddressForDisplay = (addressStr?: string): string => {
@@ -177,6 +177,17 @@ export default function ProfileScreen() {
               <Ionicons name="pencil-outline" size={20} color="#3b82f6" />
               <Text className="text-blue-600 text-base font-bold ml-2">
                 Chỉnh sửa hồ sơ
+              </Text>
+            </Pressable>
+
+            {/* Manage Addresses Button */}
+            <Pressable
+              onPress={() => router.push('/address')}
+              className="flex-row items-center justify-center p-4 rounded-2xl border-2 border-emerald-500/30 bg-emerald-500/10"
+            >
+              <Ionicons name="location-outline" size={20} color="#10b981" />
+              <Text className="text-emerald-600 text-base font-bold ml-2">
+                Quản lý địa chỉ giao hàng
               </Text>
             </Pressable>
 
