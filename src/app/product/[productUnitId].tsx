@@ -1,7 +1,7 @@
-import { useCartList, useProductUnitById } from '@/react-query';
+import { useCartList, useProductById, useProductUnitById } from '@/react-query';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -30,6 +30,9 @@ export default function ProductDetailScreen() {
     productUnitId: id,
   });
 
+  const productId = unitData?.data?.productId ?? 0;
+  const { data: productData } = useProductById({ id: productId });
+
   const { data: cartData } = useCartList();
   const totalItems = cartData?.data?.totalItems ?? 0;
 
@@ -54,8 +57,8 @@ export default function ProductDetailScreen() {
   const unitName = unitData?.data?.unitName ?? '';
   const price = unitData?.data?.currentPrice ?? null;
   const stock = unitData?.data?.quantityOnHand ?? 0;
-  const descriptionHtml: string = unitData?.data?.description ?? '<p></p>';
-
+  const descriptionHtml: string =
+    productData?.data?.description ?? unitData?.data?.description ?? '<p></p>';
   const openAddToCartSheet = () => {
     router.push({
       pathname: '/detail',

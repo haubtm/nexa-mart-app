@@ -28,6 +28,7 @@ export const useProductById = (body: IProductByIdRequest) => {
   return useQuery({
     queryKey: productKeys.byId(body.id),
     queryFn: async () => await productApi.byId(body),
+    enabled: !!body.id,
   });
 };
 
