@@ -34,7 +34,12 @@
         {
           "image": "./src/assets/images/splash-screen.png",
           "resizeMode": "cover",
-          "backgroundColor": "#319795"
+          "backgroundColor": "#319795",
+          "android": {
+            "image": "./src/assets/images/splash-screen.png",
+            "resizeMode": "cover",
+            "backgroundColor": "#319795"
+          }
         }
       ],
       "expo-font",
