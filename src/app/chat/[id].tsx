@@ -1,25 +1,24 @@
+import { CartDetailCard } from '@/components/CartDetailCard';
+import { OrderCard } from '@/components/OrderCard';
+import { PolicyCard } from '@/components/PolicyCard';
 import { ProductCard } from '@/components/ProductCard';
 import { PromotionCard } from '@/components/PromotionCard';
-import { PolicyCard } from '@/components/PolicyCard';
-import { OrderCard } from '@/components/OrderCard';
 import { StockCard } from '@/components/StockCard';
-import { CartDetailCard } from '@/components/CartDetailCard';
 import { SuggestionCard } from '@/components/SuggestionCard';
 import type { IChatMessage } from '@/dtos';
 import { ESenderType } from '@/lib';
 import { useConversationById, useConversationChat } from '@/react-query';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   Text,
   TextInput,
-  View,
+  View
 } from 'react-native';
 
 export default function ChatRoomScreen() {
@@ -49,6 +48,19 @@ export default function ChatRoomScreen() {
 
   const { mutateAsync: chatWithConversation, isPending: sending } =
     useConversationChat();
+
+  /**
+   * Effect để cuộn đến tin nhắn mới nhất khi danh sách tin nhắn thay đổi
+   * Điều này đảm bảo rằng sau khi refetch dữ liệu hoặc có tin nhắn mới,
+   * danh sách sẽ tự động cuộn xuống cuối
+   */
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        listRef.current?.scrollToEnd({ animated: true });
+      }, 150);
+    }
+  }, [messages.length]);
 
   const send = async () => {
     const value = text.trim();
@@ -243,8 +255,8 @@ export default function ChatRoomScreen() {
       ) : (
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 100}
+          behavior="padding"
+          keyboardVerticalOffset={0}
         >
           <FlatList<IChatMessage>
             ref={listRef}

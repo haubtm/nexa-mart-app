@@ -81,12 +81,12 @@ const SegButton = ({
   </Pressable>
 );
 
+// Các tab trạng thái đơn hàng (đã loại bỏ DELIVERED và UNPAID)
 const STATUS_TABS: { key: 'ALL' | EOrderStatus; label: string }[] = [
   { key: 'ALL', label: 'Tất cả' },
   { key: EOrderStatus.PENDING, label: 'Đang xử lý' },
   { key: EOrderStatus.PREPARED, label: 'Đã chuẩn bị' },
   { key: EOrderStatus.SHIPPING, label: 'Đang giao' },
-  { key: EOrderStatus.DELIVERED, label: 'Đã giao' },
   { key: EOrderStatus.COMPLETED, label: 'Hoàn thành' },
   { key: EOrderStatus.CANCELLED, label: 'Đã hủy' },
 ];
@@ -107,12 +107,18 @@ export default function OrdersListScreen() {
   );
   const { data: orderListData, isPending } = useOrderList(params as any);
 
-  // Chuẩn hoá data từ server
+  // Chuẩn hoá data từ server và lọc bỏ các đơn hàng có trạng thái UNPAID
   const serverItems: any[] = useMemo(() => {
     const raw = (orderListData?.data?.content ??
       orderListData?.data ??
       []) as any[];
-    return Array.isArray(raw) ? raw : [];
+    const items = Array.isArray(raw) ? raw : [];
+    // Lọc bỏ các đơn hàng có trạng thái UNPAID
+    return items.filter(
+      (item: any) =>
+        item.status !== EOrderStatus.UNPAID &&
+        item.orderStatus !== EOrderStatus.UNPAID,
+    );
   }, [orderListData]);
 
   // Tổng trang (nếu server có phân trang) và hasMore chính xác
@@ -158,14 +164,21 @@ export default function OrdersListScreen() {
     setPage((p) => p + 1);
   };
 
+  // Hàm xử lý khi thay đổi tab lọc trạng thái
   const onChangeTab = (k: 'ALL' | EOrderStatus) => {
     if (k === tab) return;
     setTab(k);
     lastApplied.current = null;
     setItems([]);
     setPage(0);
-    // Scroll tabs về đầu
-    scrollViewRef.current?.scrollTo({ x: 0, animated: true });
+    // Cuộn thanh tab đến vị trí của tab được chọn
+    const tabIndex = STATUS_TABS.findIndex((t) => t.key === k);
+    if (tabIndex >= 0 && scrollViewRef.current) {
+      // Ước tính mỗi tab có chiều rộng khoảng 90px (padding + text + margin)
+      const estimatedTabWidth = 90;
+      const scrollX = Math.max(0, tabIndex * estimatedTabWidth - 50);
+      scrollViewRef.current.scrollTo({ x: scrollX, animated: true });
+    }
   };
 
   // ===== Renderers =====
